@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -10,9 +12,12 @@
 |
 */
 
+use Atldays\QueryCache\Test\Models\Kid;
+use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\Str;
 
-$factory->define(\Rennokki\QueryCache\Test\Models\Kid::class, function () {
+/** @var Factory $factory */
+$factory->define(Kid::class, function () {
     return [
         'name' => 'Kid'.Str::random(5),
     ];

@@ -1,22 +1,39 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test;
+
+use Atldays\QueryCache\Test\Models\Book;
+use Atldays\QueryCache\Test\Models\Kid;
+use Atldays\QueryCache\Test\Models\Page;
+use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
     /**
+     * Compatibility shim for older/newer Laravel testing internals used by Testbench.
+     *
+     * @var mixed
+     */
+    public static $latestResponse;
+
+    /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        if ($this->getProvidedData() && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
-            [$strict] = $this->getProvidedData();
+        $providedData = $this->getStrictModeProvidedData();
+
+        if ($providedData !== [] && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
+            [$strict] = $providedData;
             Model::preventAccessingMissingAttributes($strict);
         }
 
@@ -37,7 +54,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            \Livewire\LivewireServiceProvider::class,
+            LivewireServiceProvider::class,
         ];
     }
 
@@ -53,10 +70,12 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        $app['config']->set(
-            'cache.driver',
-            getenv('CACHE_DRIVER') ?: env('CACHE_DRIVER', 'array')
-        );
+        $cacheDriver = getenv('CACHE_DRIVER') ?: env('CACHE_DRIVER', 'array');
+
+        // Newer Laravel versions use cache.default while some older tests/tools
+        // in this package still reference cache.driver.
+        $app['config']->set('cache.default', $cacheDriver);
+        $app['config']->set('cache.driver', $cacheDriver);
 
         $app['config']->set('auth.providers.users.model', User::class);
         $app['config']->set('auth.providers.posts.model', Post::class);
@@ -79,7 +98,7 @@ abstract class TestCase extends Orchestra
      */
     protected function resetDatabase()
     {
-        file_put_contents(__DIR__.'/database/database.sqlite', null);
+        file_put_contents(__DIR__.'/database/database.sqlite', '');
     }
 
     /**
@@ -95,11 +114,9 @@ abstract class TestCase extends Orchestra
     /**
      * Get the cache with tags, if the driver supports it.
      *
-     * @param  string  $key
-     * @param  array|null  $tags
      * @return mixed
      */
-    protected function getCacheWithTags(string $key, $tags = null)
+    protected function getCacheWithTags(string $key, ?array $tags = null)
     {
         return $this->driverSupportsTags()
             ? Cache::tags($tags)->get($key)
@@ -112,13 +129,26 @@ abstract class TestCase extends Orchestra
         yield [false];
     }
 
+    protected function getStrictModeProvidedData(): array
+    {
+        if (method_exists($this, 'providedData')) {
+            return $this->providedData();
+        }
+
+        if (method_exists($this, 'getProvidedData')) {
+            return $this->getProvidedData();
+        }
+
+        return [];
+    }
+
     /**
      * Check if the current driver supports tags.
-     *
-     * @return bool
      */
     protected function driverSupportsTags(): bool
     {
-        return ! in_array(config('cache.driver'), ['file', 'database']);
+        $driver = config('cache.default', config('cache.driver'));
+
+        return ! in_array($driver, ['file', 'database'], true);
     }
 }

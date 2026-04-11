@@ -1,15 +1,20 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test;
+
+use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
-use Rennokki\QueryCache\Test\Models\Post;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class FirstTest extends TestCase
+class FirstTest extends BaseTestCase
 {
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_first()
     {
         $post = factory(Post::class)->create();
@@ -27,6 +32,7 @@ class FirstTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_first_with_columns()
     {
         $post = factory(Post::class)->create();

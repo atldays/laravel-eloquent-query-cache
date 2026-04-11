@@ -1,15 +1,20 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test;
+
+use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
-use Rennokki\QueryCache\Test\Models\Post;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class CountTest extends TestCase
+class CountTest extends BaseTestCase
 {
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_count()
     {
         $posts = factory(Post::class, 5)->create();
@@ -27,6 +32,7 @@ class CountTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_count_with_columns()
     {
         $posts = factory(Post::class, 5)->create();

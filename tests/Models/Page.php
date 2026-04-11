@@ -1,17 +1,19 @@
 <?php
 
-namespace Rennokki\QueryCache\Test\Models;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test\Models;
+
+use Atldays\QueryCache\Traits\QueryCacheable;
 use Illuminate\Database\Eloquent\Model;
-use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Page extends Model
 {
     use QueryCacheable;
 
-    protected static $flushCacheOnUpdate = true;
+    protected static bool $flushCacheOnUpdate = true;
 
-    protected $cacheUsePlainKey = true;
+    protected bool $cacheUsePlainKey = true;
 
     protected $fillable = [
         'name',
@@ -24,12 +26,12 @@ class Page extends Model
         ];
     }
 
-    protected function cacheUsePlainKeyValue()
+    protected function cacheUsePlainKeyValue(): bool
     {
         return $this->cacheUsePlainKey;
     }
 
-    protected function cacheForValue()
+    protected function cacheForValue(): int
     {
         return 3600;
     }

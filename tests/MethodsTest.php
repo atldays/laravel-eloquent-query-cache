@@ -1,18 +1,23 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test;
+
+use Atldays\QueryCache\Test\Models\Book;
+use Atldays\QueryCache\Test\Models\Kid;
+use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
-use Rennokki\QueryCache\Test\Models\Book;
-use Rennokki\QueryCache\Test\Models\Kid;
-use Rennokki\QueryCache\Test\Models\Post;
-use Rennokki\QueryCache\Test\Models\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class MethodsTest extends TestCase
+class MethodsTest extends BaseTestCase
 {
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_do_not_cache()
     {
         $post = factory(Post::class)->create();
@@ -29,6 +34,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_prefix()
     {
         $post = factory(Post::class)->create();
@@ -41,6 +47,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_tags()
     {
         $post = factory(Post::class)->create();
@@ -61,6 +68,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_the_right_tag()
     {
         $post = factory(Post::class)->create();
@@ -78,6 +86,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_without_the_right_tag()
     {
         $post = factory(Post::class)->create();
@@ -101,6 +110,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_more_tags()
     {
         $post = factory(Post::class)->create();
@@ -122,6 +132,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_default_tags_attached()
     {
         $book = factory(Book::class)->create();
@@ -140,6 +151,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_hashed_key()
     {
         $kid = factory(Kid::class)->create();
@@ -152,6 +164,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags()
     {
         $post = factory(Post::class)->create();
@@ -172,6 +185,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_multiple_append_cache_tags()
     {
         $post = factory(Post::class)->create();
@@ -183,6 +197,7 @@ class MethodsTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags_with_sub_query()
     {
         $user = factory(User::class)->create();

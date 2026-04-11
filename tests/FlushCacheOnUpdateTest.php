@@ -1,14 +1,19 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
-use Rennokki\QueryCache\Test\Models\Page;
+namespace Atldays\QueryCache\Test;
 
-class FlushCacheOnUpdateTest extends TestCase
+use Atldays\QueryCache\Test\Models\Page;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+class FlushCacheOnUpdateTest extends BaseTestCase
 {
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_create()
     {
         $page = factory(Page::class)->create();
@@ -34,6 +39,7 @@ class FlushCacheOnUpdateTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_update()
     {
         $page = factory(Page::class)->create();
@@ -59,6 +65,7 @@ class FlushCacheOnUpdateTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_delete()
     {
         $page = factory(Page::class)->create();
@@ -82,6 +89,7 @@ class FlushCacheOnUpdateTest extends TestCase
     /**
      * @dataProvider strictModeContextProvider
      */
+    #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_force_deletion()
     {
         $page = factory(Page::class)->create();

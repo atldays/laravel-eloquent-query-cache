@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -10,9 +12,12 @@
 |
 */
 
+use Atldays\QueryCache\Test\Models\Page;
+use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\Str;
 
-$factory->define(\Rennokki\QueryCache\Test\Models\Page::class, function () {
+/** @var Factory $factory */
+$factory->define(Page::class, function () {
     return [
         'name' => 'Page'.Str::random(5),
     ];
