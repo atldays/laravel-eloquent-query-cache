@@ -13,9 +13,10 @@ declare(strict_types=1);
 */
 
 use Atldays\QueryCache\Test\Models\Kid;
+use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\Str;
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+/** @var Factory $factory */
 $factory->define(Kid::class, function () {
     return [
         'name' => 'Kid'.Str::random(5),

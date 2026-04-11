@@ -3,21 +3,49 @@ name: CI
 on:
   push:
     branches:
-      - "*"
+      - '**'
     tags:
-      - "*"
+      - '**'
   pull_request:
     branches:
-      - "*"
+      - '**'
 
 jobs:
-  build:
+  pint:
+    name: Pint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-pint-${{ hashFiles('composer.json') }}
+          restore-keys: composer-pint-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Run Pint
+        run: vendor/bin/pint --test
+
+  tests:
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.prefer }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.1', '8.2', '8.3', '8.4']
+        php: ['8.2', '8.3', '8.4', '8.5']
         laravel: ['10.*', '11.*', '12.*']
         prefer: [prefer-lowest, prefer-stable]
         include:
@@ -28,17 +56,17 @@ jobs:
           - laravel: 12.*
             testbench: 10.*
         exclude:
-          - php: '8.1'
-            laravel: 11.*
           - php: '8.4'
             laravel: 10.*
-          - laravel: 12.*
-            php: '8.1'
-
-    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
+          - php: '8.5'
+            laravel: 10.*
+          - php: '8.5'
+            laravel: 11.*
+          - php: '8.2'
+            laravel: 11.*
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -47,16 +75,19 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
 
-      - uses: actions/cache@v4
-        name: Cache dependencies
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
           path: ~/.composer/cache/files
           key: composer-php-${{ matrix.php }}-${{ matrix.laravel }}-${{ matrix.prefer }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-php-${{ matrix.php }}-${{ matrix.laravel }}-${{ matrix.prefer }}-
+            composer-php-${{ matrix.php }}-${{ matrix.laravel }}-
 
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-          composer update --${{ matrix.prefer }} --prefer-dist --no-interaction --no-suggest
+          composer update --${{ matrix.prefer }} --prefer-dist --no-interaction
 
       - name: Run tests
         run: |
