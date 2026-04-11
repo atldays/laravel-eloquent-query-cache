@@ -19,7 +19,7 @@ class LivewireTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_livewire_component_poll_doesnt_break_when_callback_is_already_set()
     {
-        // See: https://github.com/renoki-co/laravel-eloquent-query-cache/issues/163
+        // Keep this regression covered when Livewire polling already defines a callback.
         Livewire::component('post', PostComponent::class);
 
         $posts = factory(Post::class, 30)->create();
