@@ -8,10 +8,11 @@ use Atldays\QueryCache\Test\Models\Book;
 use Atldays\QueryCache\Test\Models\Kid;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class MethodsTest extends TestCase
+class MethodsTest extends BaseTestCase
 {
     #[DataProvider('strictModeContextProvider')]
     public function test_do_not_cache()

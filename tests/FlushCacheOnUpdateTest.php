@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Test\Models\Page;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class FlushCacheOnUpdateTest extends TestCase
+class FlushCacheOnUpdateTest extends BaseTestCase
 {
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_create()

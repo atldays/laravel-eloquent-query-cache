@@ -6,9 +6,10 @@ namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Test\Models\Role;
 use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class FlushCacheOnUpdatePivotTest extends TestCase
+class FlushCacheOnUpdatePivotTest extends BaseTestCase
 {
     #[DataProvider('strictModeContextProvider')]
     public function test_belongs_to_many()

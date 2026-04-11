@@ -6,10 +6,11 @@ namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Test\Models\Comment;
 use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-class MorphToTest extends TestCase
+class MorphToTest extends BaseTestCase
 {
     #[DataProvider('strictModeContextProvider')]
     public function test_morph_to_relation_inherits_cache_configuration()
