@@ -1,8 +1,12 @@
 <?php
 
-namespace Rennokki\QueryCache;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache;
+
+use Atldays\QueryCache\Traits\QueryCacheable;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class FlushQueryCacheObserver
@@ -10,10 +14,9 @@ class FlushQueryCacheObserver
     /**
      * Handle the Model "created" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * @throws Exception
      */
-    public function created(Model $model)
+    public function created(Model $model): void
     {
         $this->invalidateCache($model);
     }
@@ -21,10 +24,9 @@ class FlushQueryCacheObserver
     /**
      * Handle the Model "updated" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * @throws Exception
      */
-    public function updated(Model $model)
+    public function updated(Model $model): void
     {
         $this->invalidateCache($model);
     }
@@ -32,10 +34,9 @@ class FlushQueryCacheObserver
     /**
      * Handle the Model "deleted" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * @throws Exception
      */
-    public function deleted(Model $model)
+    public function deleted(Model $model): void
     {
         $this->invalidateCache($model);
     }
@@ -43,10 +44,9 @@ class FlushQueryCacheObserver
     /**
      * Handle the Model "forceDeleted" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * @throws Exception
      */
-    public function forceDeleted(Model $model)
+    public function forceDeleted(Model $model): void
     {
         $this->invalidateCache($model);
     }
@@ -54,10 +54,9 @@ class FlushQueryCacheObserver
     /**
      * Handle the Model "restored" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
+     * @throws Exception
      */
-    public function restored(Model $model)
+    public function restored(Model $model): void
     {
         $this->invalidateCache($model);
     }
@@ -65,12 +64,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate attach for belongsToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function belongsToManyAttached($relation, Model $model, $ids)
+    public function belongsToManyAttached(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -78,12 +74,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate detach for belongsToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function belongsToManyDetached($relation, Model $model, $ids)
+    public function belongsToManyDetached(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -91,12 +84,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate update pivot for belongsToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function belongsToManyUpdatedExistingPivot($relation, Model $model, $ids)
+    public function belongsToManyUpdatedExistingPivot(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -104,12 +94,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate attach for morphToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function morphToManyAttached($relation, Model $model, $ids)
+    public function morphToManyAttached(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -117,12 +104,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate detach for morphToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function morphToManyDetached($relation, Model $model, $ids)
+    public function morphToManyDetached(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -130,12 +114,9 @@ class FlushQueryCacheObserver
     /**
      * Invalidate update pivot for morphToMany.
      *
-     * @param  string  $relation
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $ids
-     * @return void
+     * @throws Exception
      */
-    public function morphToManyUpdatedExistingPivot($relation, Model $model, $ids)
+    public function morphToManyUpdatedExistingPivot(string $relation, Model $model, array $ids): void
     {
         $this->invalidateCache($model, $relation, $model->{$relation}()->findMany($ids));
     }
@@ -143,15 +124,12 @@ class FlushQueryCacheObserver
     /**
      * Invalidate the cache for a model.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string|null  $relation
-     * @param  \Illuminate\Database\Eloquent\Collection|null  $pivotedModels
-     * @return void
      *
      * @throws Exception
      */
-    protected function invalidateCache(Model $model, $relation = null, $pivotedModels = null): void
+    protected function invalidateCache(Model $model, ?string $relation = null, ?Collection $pivotedModels = null): void
     {
+        /** @var QueryCacheable $model */
         $class = get_class($model);
 
         $tags = $model->getCacheTagsToInvalidateOnUpdate($relation, $pivotedModels);

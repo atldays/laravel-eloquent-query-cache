@@ -1,9 +1,13 @@
 <?php
 
-namespace Rennokki\QueryCache\Traits;
+declare(strict_types=1);
 
-use Rennokki\QueryCache\FlushQueryCacheObserver;
-use Rennokki\QueryCache\Query\Builder;
+namespace Atldays\QueryCache\Traits;
+
+use Atldays\QueryCache\FlushQueryCacheObserver;
+use Atldays\QueryCache\Query\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static bool flushQueryCache(array $tags = [])
@@ -20,18 +24,16 @@ use Rennokki\QueryCache\Query\Builder;
  */
 trait QueryCacheable
 {
+    use HasRelationships;
+
     /**
      * Boot the trait.
-     *
-     * @return void
      */
-    public static function bootQueryCacheable()
+    public static function bootQueryCacheable(): void
     {
-        /** @var \Illuminate\Database\Eloquent\Model $this */
+        /** @var Model $this */
         if (isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate) {
-            static::observe(
-                static::getFlushQueryCacheObserver()
-            );
+            static::observe(static::getFlushQueryCacheObserver());
         }
     }
 
@@ -40,9 +42,9 @@ trait QueryCacheable
      * observe the changes and will invalidate the cache
      * upon database change.
      *
-     * @return string
+     * @return class-string
      */
-    protected static function getFlushQueryCacheObserver()
+    protected static function getFlushQueryCacheObserver(): string
     {
         return FlushQueryCacheObserver::class;
     }
@@ -50,8 +52,6 @@ trait QueryCacheable
     /**
      * Set the base cache tags that will be present
      * on all queries.
-     *
-     * @return array
      */
     protected function getCacheBaseTags(): array
     {
@@ -63,15 +63,23 @@ trait QueryCacheable
     /**
      * When invalidating automatically on update, you can specify
      * which tags to invalidate.
-     *
-     * @param  string|null  $relation
-     * @param  \Illuminate\Database\Eloquent\Collection|null  $pivotedModels
-     * @return array
      */
-    public function getCacheTagsToInvalidateOnUpdate($relation = null, $pivotedModels = null): array
+    public function getCacheTagsToInvalidateOnUpdate(?string $relation = null, ?Collection $pivotedModels = null): array
     {
-        /** @var \Illuminate\Database\Eloquent\Model $this */
+        /** @var Model $this */
         return $this->getCacheBaseTags();
+    }
+
+    protected function newCacheQueryBuilder(): Builder
+    {
+        /** @var Model $this */
+        $connection = $this->getConnection();
+
+        return new Builder(
+            $connection,
+            $connection->getQueryGrammar(),
+            $connection->getPostProcessor()
+        );
     }
 
     /**
@@ -79,14 +87,7 @@ trait QueryCacheable
      */
     protected function newBaseQueryBuilder()
     {
-        /** @var \Illuminate\Database\Eloquent\Model $this */
-        $connection = $this->getConnection();
-
-        $builder = new Builder(
-            $connection,
-            $connection->getQueryGrammar(),
-            $connection->getPostProcessor()
-        );
+        $builder = $this->newCacheQueryBuilder();
 
         $builder->dontCache();
 

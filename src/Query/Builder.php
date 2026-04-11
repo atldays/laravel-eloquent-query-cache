@@ -1,11 +1,15 @@
 <?php
 
-namespace Rennokki\QueryCache\Query;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Query;
+
+use Atldays\QueryCache\Contracts\QueryCacheModuleInterface;
+use Atldays\QueryCache\Traits\QueryCacheModule;
+use Closure;
 use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Support\Arr;
-use Rennokki\QueryCache\Contracts\QueryCacheModuleInterface;
-use Rennokki\QueryCache\Traits\QueryCacheModule;
+use InvalidArgumentException;
 
 class Builder extends BaseBuilder implements QueryCacheModuleInterface
 {
@@ -38,11 +42,11 @@ class Builder extends BaseBuilder implements QueryCacheModuleInterface
     /**
      * Add a subselect expression to the query.
      *
-     * @param  \Closure|$this|string  $query
+     * @param  Closure|$this|string  $query
      * @param  string  $as
      * @return $this
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function selectSub($query, $as)
     {
