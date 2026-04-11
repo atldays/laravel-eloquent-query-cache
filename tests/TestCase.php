@@ -17,6 +17,13 @@ use Orchestra\Testbench\TestCase as Orchestra;
 abstract class TestCase extends Orchestra
 {
     /**
+     * Compatibility shim for older/newer Laravel testing internals used by Testbench.
+     *
+     * @var mixed
+     */
+    protected static $latestResponse;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp(): void
