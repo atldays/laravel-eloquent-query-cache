@@ -11,6 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class FirstTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_first()
     {
@@ -26,6 +29,9 @@ class FirstTest extends BaseTestCase
         );
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_first_with_columns()
     {

@@ -11,6 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class PaginateTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_paginate()
     {
@@ -33,6 +36,9 @@ class PaginateTest extends BaseTestCase
         $this->assertEquals(1, $postsCache->first()->id);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_paginate_with_columns()
     {

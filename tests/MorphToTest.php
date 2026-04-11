@@ -12,6 +12,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class MorphToTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_morph_to_relation_inherits_cache_configuration()
     {

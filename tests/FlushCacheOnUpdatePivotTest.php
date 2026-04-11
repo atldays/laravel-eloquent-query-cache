@@ -11,6 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class FlushCacheOnUpdatePivotTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_belongs_to_many()
     {

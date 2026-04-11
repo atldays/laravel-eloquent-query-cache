@@ -14,6 +14,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class MethodsTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_do_not_cache()
     {
@@ -28,6 +31,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_prefix()
     {
@@ -38,6 +44,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNotNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_tags()
     {
@@ -56,6 +65,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNotNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_the_right_tag()
     {
@@ -71,6 +83,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_without_the_right_tag()
     {
@@ -92,6 +107,9 @@ class MethodsTest extends BaseTestCase
             : $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_more_tags()
     {
@@ -111,6 +129,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_default_tags_attached()
     {
@@ -127,6 +148,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_hashed_key()
     {
@@ -137,6 +161,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNotNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags()
     {
@@ -155,6 +182,9 @@ class MethodsTest extends BaseTestCase
         $this->assertNotNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_multiple_append_cache_tags()
     {
@@ -164,6 +194,9 @@ class MethodsTest extends BaseTestCase
         $this->assertEquals($storedPostQuery->getQuery()->getCacheTags(), ['test', 'test2']);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags_with_sub_query()
     {

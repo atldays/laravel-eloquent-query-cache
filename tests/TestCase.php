@@ -23,8 +23,10 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        if ($this->providedData() && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
-            [$strict] = $this->providedData();
+        $providedData = $this->getStrictModeProvidedData();
+
+        if ($providedData !== [] && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
+            [$strict] = $providedData;
             Model::preventAccessingMissingAttributes($strict);
         }
 
@@ -116,6 +118,19 @@ abstract class TestCase extends Orchestra
     {
         yield [true];
         yield [false];
+    }
+
+    protected function getStrictModeProvidedData(): array
+    {
+        if (method_exists($this, 'providedData')) {
+            return $this->providedData();
+        }
+
+        if (method_exists($this, 'getProvidedData')) {
+            return $this->getProvidedData();
+        }
+
+        return [];
     }
 
     /**

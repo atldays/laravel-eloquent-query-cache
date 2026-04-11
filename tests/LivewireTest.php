@@ -13,6 +13,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class LivewireTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_livewire_component_poll_doesnt_break_when_callback_is_already_set()
     {

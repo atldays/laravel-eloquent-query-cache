@@ -10,6 +10,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class FlushCacheOnUpdateTest extends BaseTestCase
 {
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_create()
     {
@@ -33,6 +36,9 @@ class FlushCacheOnUpdateTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_update()
     {
@@ -56,6 +62,9 @@ class FlushCacheOnUpdateTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_delete()
     {
@@ -77,6 +86,9 @@ class FlushCacheOnUpdateTest extends BaseTestCase
         $this->assertNull($cache);
     }
 
+    /**
+     * @dataProvider strictModeContextProvider
+     */
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_force_deletion()
     {

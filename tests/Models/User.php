@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test\Models;
 
 use Atldays\QueryCache\Traits\QueryCacheable;
-use Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
-use Chelout\RelationshipEvents\Traits\HasRelationshipObservables;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasBelongsToManyEvents;
-    use HasRelationshipObservables;
     use QueryCacheable;
 
     protected static bool $flushCacheOnUpdate = true;

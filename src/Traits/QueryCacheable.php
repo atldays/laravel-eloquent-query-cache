@@ -37,6 +37,11 @@ trait QueryCacheable
         }
     }
 
+    public function shouldFlushCacheOnUpdate(): bool
+    {
+        return isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate;
+    }
+
     /**
      * Get the observer class name that will
      * observe the changes and will invalidate the cache
