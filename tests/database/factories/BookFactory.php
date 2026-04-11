@@ -15,6 +15,7 @@ declare(strict_types=1);
 use Atldays\QueryCache\Test\Models\Book;
 use Illuminate\Support\Str;
 
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Book::class, function () {
     return [
         'name' => 'Book'.Str::random(5),

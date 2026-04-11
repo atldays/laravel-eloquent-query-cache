@@ -15,6 +15,7 @@ declare(strict_types=1);
 use Atldays\QueryCache\Test\Models\Role;
 use Illuminate\Support\Str;
 
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Role::class, function () {
     return [
         'name' => 'Role'.Str::random(5),

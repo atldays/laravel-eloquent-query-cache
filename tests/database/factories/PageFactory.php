@@ -15,6 +15,7 @@ declare(strict_types=1);
 use Atldays\QueryCache\Test\Models\Page;
 use Illuminate\Support\Str;
 
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Page::class, function () {
     return [
         'name' => 'Page'.Str::random(5),

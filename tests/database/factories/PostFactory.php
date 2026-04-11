@@ -15,6 +15,7 @@ declare(strict_types=1);
 use Atldays\QueryCache\Test\Models\Post;
 use Illuminate\Support\Str;
 
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Post::class, function () {
     return [
         'name' => 'Post'.Str::random(5),
