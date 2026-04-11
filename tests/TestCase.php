@@ -1,9 +1,17 @@
 <?php
 
-namespace Rennokki\QueryCache\Test;
+declare(strict_types=1);
 
+namespace Atldays\QueryCache\Test;
+
+use Atldays\QueryCache\Test\Models\Book;
+use Atldays\QueryCache\Test\Models\Kid;
+use Atldays\QueryCache\Test\Models\Page;
+use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -11,12 +19,12 @@ abstract class TestCase extends Orchestra
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        if ($this->getProvidedData() && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
-            [$strict] = $this->getProvidedData();
+        if ($this->providedData() && method_exists(Model::class, 'preventAccessingMissingAttributes')) {
+            [$strict] = $this->providedData();
             Model::preventAccessingMissingAttributes($strict);
         }
 
@@ -37,7 +45,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            \Livewire\LivewireServiceProvider::class,
+            LivewireServiceProvider::class,
         ];
     }
 
@@ -79,7 +87,7 @@ abstract class TestCase extends Orchestra
      */
     protected function resetDatabase()
     {
-        file_put_contents(__DIR__.'/database/database.sqlite', null);
+        file_put_contents(__DIR__.'/database/database.sqlite', '');
     }
 
     /**
@@ -95,11 +103,9 @@ abstract class TestCase extends Orchestra
     /**
      * Get the cache with tags, if the driver supports it.
      *
-     * @param  string  $key
-     * @param  array|null  $tags
      * @return mixed
      */
-    protected function getCacheWithTags(string $key, $tags = null)
+    protected function getCacheWithTags(string $key, ?array $tags = null)
     {
         return $this->driverSupportsTags()
             ? Cache::tags($tags)->get($key)
@@ -114,8 +120,6 @@ abstract class TestCase extends Orchestra
 
     /**
      * Check if the current driver supports tags.
-     *
-     * @return bool
      */
     protected function driverSupportsTags(): bool
     {

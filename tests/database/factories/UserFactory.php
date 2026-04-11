@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -10,9 +12,10 @@
 |
 */
 
+use Atldays\QueryCache\Test\Models\User;
 use Illuminate\Support\Str;
 
-$factory->define(\Rennokki\QueryCache\Test\Models\User::class, function () {
+$factory->define(User::class, function () {
     return [
         'name' => 'Name'.Str::random(5),
         'email' => Str::random(5).'@gmail.com',

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -10,9 +12,10 @@
 |
 */
 
+use Atldays\QueryCache\Test\Models\Post;
 use Illuminate\Support\Str;
 
-$factory->define(\Rennokki\QueryCache\Test\Models\Post::class, function () {
+$factory->define(Post::class, function () {
     return [
         'name' => 'Post'.Str::random(5),
     ];

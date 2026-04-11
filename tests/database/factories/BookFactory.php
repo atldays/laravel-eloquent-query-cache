@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -10,9 +12,10 @@
 |
 */
 
+use Atldays\QueryCache\Test\Models\Book;
 use Illuminate\Support\Str;
 
-$factory->define(\Rennokki\QueryCache\Test\Models\Book::class, function () {
+$factory->define(Book::class, function () {
     return [
         'name' => 'Book'.Str::random(5),
     ];

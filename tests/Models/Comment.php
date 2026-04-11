@@ -7,21 +7,21 @@ namespace Atldays\QueryCache\Test\Models;
 use Atldays\QueryCache\Traits\QueryCacheable;
 use Illuminate\Database\Eloquent\Model;
 
-class Kid extends Model
+class Comment extends Model
 {
     use QueryCacheable;
 
     protected bool $cacheUsePlainKey = true;
 
     protected $fillable = [
-        'name',
+        'body',
+        'commentable_id',
+        'commentable_type',
     ];
 
-    protected function getCacheBaseTags(): array
+    public function commentable()
     {
-        return [
-            //
-        ];
+        return $this->morphTo();
     }
 
     protected function cacheUsePlainKeyValue(): bool
