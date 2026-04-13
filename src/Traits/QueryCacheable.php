@@ -33,9 +33,15 @@ trait QueryCacheable
     {
         /** @var Model $this */
         if (isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate) {
-            static::whenBooted(function (): void {
-                static::observe(static::getFlushQueryCacheObserver());
-            });
+            if (method_exists(static::class, 'whenBooted')) {
+                static::whenBooted(function (): void {
+                    static::observe(static::getFlushQueryCacheObserver());
+                });
+
+                return;
+            }
+
+            static::observe(static::getFlushQueryCacheObserver());
         }
     }
 
