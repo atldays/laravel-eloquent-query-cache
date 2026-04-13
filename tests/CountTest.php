@@ -15,7 +15,7 @@ class CountTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_count()
+    public function test_count(bool $strictMode)
     {
         $posts = factory(Post::class, 5)->create();
         $postsCount = Post::cacheFor(now()->addHours(1))->count();
@@ -33,7 +33,7 @@ class CountTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_count_with_columns()
+    public function test_count_with_columns(bool $strictMode)
     {
         $posts = factory(Post::class, 5)->create();
         $postsCount = Post::cacheFor(now()->addHours(1))->count('name');

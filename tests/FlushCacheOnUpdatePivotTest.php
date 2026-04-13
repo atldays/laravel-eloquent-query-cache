@@ -15,7 +15,7 @@ class FlushCacheOnUpdatePivotTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_belongs_to_many()
+    public function test_belongs_to_many(bool $strictMode)
     {
         $key = 'leqc:sqlitegetselect "roles".*, "role_user"."user_id" as "pivot_user_id", "role_user"."role_id" as "pivot_role_id" from "roles" inner join "role_user" on "roles"."id" = "role_user"."role_id" where "role_user"."user_id" = ? limit 1a:1:{i:0;i:1;}';
 

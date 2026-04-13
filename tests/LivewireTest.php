@@ -17,7 +17,7 @@ class LivewireTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_livewire_component_poll_doesnt_break_when_callback_is_already_set()
+    public function test_livewire_component_poll_doesnt_break_when_callback_is_already_set(bool $strictMode)
     {
         // Keep this regression covered when Livewire polling already defines a callback.
         Livewire::component('post', PostComponent::class);

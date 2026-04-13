@@ -16,7 +16,7 @@ class MorphToTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_morph_to_relation_inherits_cache_configuration()
+    public function test_morph_to_relation_inherits_cache_configuration(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $comment = Comment::query()->create([

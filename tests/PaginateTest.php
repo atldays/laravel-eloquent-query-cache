@@ -15,7 +15,7 @@ class PaginateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_paginate()
+    public function test_paginate(bool $strictMode)
     {
         $posts = factory(Post::class, 30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->paginate(15);
@@ -40,7 +40,7 @@ class PaginateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_paginate_with_columns()
+    public function test_paginate_with_columns(bool $strictMode)
     {
         $posts = factory(Post::class, 30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->paginate(15, ['name']);
