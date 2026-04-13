@@ -95,8 +95,13 @@ jobs:
 
       - name: Run tests
         run: |
-          CACHE_DRIVER=array vendor/bin/phpunit --coverage-text --coverage-clover=coverage_array.xml
-          CACHE_DRIVER=file vendor/bin/phpunit --coverage-text --coverage-clover=coverage_file.xml
+          PHPUNIT_CONFIG=phpunit.xml
+          if [ "${{ matrix.laravel }}" = "10.*" ]; then
+            PHPUNIT_CONFIG=phpunit.legacy.xml
+          fi
+
+          CACHE_DRIVER=array vendor/bin/phpunit -c "$PHPUNIT_CONFIG" --coverage-text --coverage-clover=coverage_array.xml
+          CACHE_DRIVER=file vendor/bin/phpunit -c "$PHPUNIT_CONFIG" --coverage-text --coverage-clover=coverage_file.xml
 
       - uses: codecov/codecov-action@v5
         with:
