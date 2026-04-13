@@ -18,7 +18,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_do_not_cache()
+    public function test_do_not_cache(bool $strictMode)
     {
         $post = factory(Post::class)->create();
 
@@ -35,7 +35,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_prefix()
+    public function test_cache_prefix(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cachePrefix('test')->first();
@@ -48,7 +48,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_tags()
+    public function test_cache_tags(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
@@ -69,7 +69,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_flush_with_the_right_tag()
+    public function test_cache_flush_with_the_right_tag(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
@@ -87,7 +87,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_flush_without_the_right_tag()
+    public function test_cache_flush_without_the_right_tag(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
@@ -111,7 +111,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_flush_with_more_tags()
+    public function test_cache_flush_with_more_tags(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
@@ -133,7 +133,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_cache_flush_with_default_tags_attached()
+    public function test_cache_flush_with_default_tags_attached(bool $strictMode)
     {
         $book = factory(Book::class)->create();
         $storedBook = Book::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
@@ -152,7 +152,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_hashed_key()
+    public function test_hashed_key(bool $strictMode)
     {
         $kid = factory(Kid::class)->create();
         $storedKid = Kid::cacheFor(now()->addHours(1))->withPlainKey(false)->first();
@@ -165,7 +165,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_append_cache_tags()
+    public function test_append_cache_tags(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->appendCacheTags(['test'])->first();
@@ -186,7 +186,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_multiple_append_cache_tags()
+    public function test_multiple_append_cache_tags(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPostQuery = Post::cacheFor(now()->addHours(1))->appendCacheTags(['test'])->appendCacheTags(['test2']);
@@ -198,7 +198,7 @@ class MethodsTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_append_cache_tags_with_sub_query()
+    public function test_append_cache_tags_with_sub_query(bool $strictMode)
     {
         $user = factory(User::class)->create();
 

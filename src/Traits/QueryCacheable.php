@@ -33,7 +33,9 @@ trait QueryCacheable
     {
         /** @var Model $this */
         if (isset(static::$flushCacheOnUpdate) && static::$flushCacheOnUpdate) {
-            static::observe(static::getFlushQueryCacheObserver());
+            static::whenBooted(function (): void {
+                static::observe(static::getFlushQueryCacheObserver());
+            });
         }
     }
 

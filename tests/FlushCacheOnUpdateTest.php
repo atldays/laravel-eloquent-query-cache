@@ -14,7 +14,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_flush_cache_on_create()
+    public function test_flush_cache_on_create(bool $strictMode)
     {
         $page = factory(Page::class)->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
@@ -40,7 +40,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_flush_cache_on_update()
+    public function test_flush_cache_on_update(bool $strictMode)
     {
         $page = factory(Page::class)->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
@@ -66,7 +66,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_flush_cache_on_delete()
+    public function test_flush_cache_on_delete(bool $strictMode)
     {
         $page = factory(Page::class)->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
@@ -90,7 +90,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_flush_cache_on_force_deletion()
+    public function test_flush_cache_on_force_deletion(bool $strictMode)
     {
         $page = factory(Page::class)->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();

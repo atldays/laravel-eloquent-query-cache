@@ -15,7 +15,7 @@ class FirstTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_first()
+    public function test_first(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->first();
@@ -33,7 +33,7 @@ class FirstTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_first_with_columns()
+    public function test_first_with_columns(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->first(['name']);

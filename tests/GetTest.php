@@ -15,7 +15,7 @@ class GetTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_get()
+    public function test_get(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get();
@@ -38,7 +38,7 @@ class GetTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_get_with_columns()
+    public function test_get_with_columns(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get(['name']);
@@ -61,7 +61,7 @@ class GetTest extends BaseTestCase
      * @dataProvider strictModeContextProvider
      */
     #[DataProvider('strictModeContextProvider')]
-    public function test_get_with_string_columns()
+    public function test_get_with_string_columns(bool $strictMode)
     {
         $post = factory(Post::class)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get('name');
