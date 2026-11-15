@@ -7,6 +7,7 @@ namespace Atldays\QueryCache\Query;
 use Atldays\QueryCache\Contracts\QueryCacheModuleInterface;
 use Atldays\QueryCache\Traits\QueryCacheModule;
 use Closure;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
@@ -35,6 +36,40 @@ class Builder extends BaseBuilder implements QueryCacheModuleInterface
         return $this->shouldAvoidCache()
             ? (clone $this)->runExistsQuery()
             : $this->getFromQueryCache('exists');
+    }
+
+    /**
+     * Retrieve a native projection, allowing after-query callbacks to replace it.
+     *
+     * @param  string|Expression  $column
+     * @param  string|Expression|null  $key
+     * @return mixed
+     */
+    public function pluck($column, $key = null)
+    {
+        $originalColumns = $this->columns;
+
+        try {
+            $this->columns ??= is_null($key) || $key === $column
+                ? [$column]
+                : [$column, $key];
+
+            $this->applyBeforeQueryCallbacks();
+
+            return $this->shouldAvoidCache()
+                ? (clone $this)->runPluckQuery($column, $key)
+                : $this->getFromQueryCacheWithArguments('pluck', [$column, $key]);
+        } finally {
+            $this->columns = $originalColumns;
+        }
+    }
+
+    /**
+     * Run the native projection without exposing grammar mutations to the caller.
+     */
+    protected function runPluckQuery(string|Expression $column, string|Expression|null $key = null): mixed
+    {
+        return parent::pluck($column, $key); // @phpstan-ignore argument.type (Laravel resolves expression keys in stripTableForPluck.)
     }
 
     /**

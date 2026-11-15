@@ -45,6 +45,18 @@ vendor/bin/phpunit
 composer test:security
 ```
 
+Run the full suite with both supported test cache drivers:
+
+```bash
+CACHE_DRIVER=array vendor/bin/phpunit
+CACHE_DRIVER=file vendor/bin/phpunit
+composer validate --strict --no-check-lock
+```
+
+CI covers PHP 8.2, 8.3, 8.4, and 8.5 with Laravel 12 and 13, using both `prefer-lowest` and `prefer-stable`. Laravel 13 is excluded on PHP 8.2. This produces 14 dependency combinations, each tested with both cache drivers. Use the development dependency overrides in `.github/workflows/ci.yml` when reproducing an older PHP/Laravel combination.
+
+Projection and scalar tests compare native Laravel results and types and count actual SQL executions on both cache misses and hits. Keep coverage for reusable builders, expressions, identical SQL with different projection arguments, casts/accessors, callbacks, cache errors, invalidation, and disabled cache modes. The operation table and callback contract are documented in README; contributor commands belong in this file.
+
 If you use the same Docker-based workflow as this repository:
 
 ```bash
@@ -52,11 +64,11 @@ docker run --rm -u $(id -u):$(id -g) -v "$PWD:/app" -w /app composer:2 sh -lc 'v
 docker run --rm -u $(id -u):$(id -g) -v "$PWD:/app" -w /app composer:2 sh -lc 'composer test'
 ```
 
-### PostgreSQL lock tests
+### PostgreSQL integration tests
 
-The regular SQLite matrix verifies cache bypass policy for locking queries. `PostgresLockTest` additionally checks real lock contention using two PostgreSQL connections, including `FOR UPDATE SKIP LOCKED`.
+The regular SQLite matrix verifies cache bypass policy for locking queries. The `postgres` group additionally checks real `exists()` and `pluck()` lock contention using two PostgreSQL connections, including `FOR UPDATE SKIP LOCKED`, exact `NUMERIC`/`DECIMAL` values, native booleans, and database errors for aggregates with forbidden row locks.
 
-CI runs these eight tests in a separate PostgreSQL 17 job on PHP 8.5 for Laravel 12 and 13. Skipped tests or an empty test suite fail this job. JUnit reports are saved as GitHub Actions artifacts for 14 days, including on test failures.
+CI runs the whole group in separate PostgreSQL 17 jobs on PHP 8.5 for Laravel 12 and 13. Mark additional PostgreSQL test classes with `#[Group('postgres')]`; a class-name filter would miss other classes. Skipped tests or an empty test suite fail these jobs. JUnit reports are saved as GitHub Actions artifacts for 14 days, including on test failures.
 
 These tests require `pdo_pgsql` and an explicitly configured test database. They create and remove uniquely named tables and are skipped when `QUERY_CACHE_PGSQL_DSN` is not set.
 
@@ -64,8 +76,12 @@ These tests require `pdo_pgsql` and an explicitly configured test database. They
 QUERY_CACHE_PGSQL_DSN='pgsql:host=127.0.0.1;dbname=query_cache_test' \
 QUERY_CACHE_PGSQL_USER=postgres \
 QUERY_CACHE_PGSQL_PASSWORD=postgres \
-vendor/bin/phpunit --filter PostgresLockTest
+vendor/bin/phpunit --group postgres --fail-on-skipped --fail-on-empty-test-suite
 ```
+
+### Consumer verification
+
+Before a release, install a copy or archive of the prepared package into a separate temporary Composer project. Exercise `value()`, both forms of `pluck()`, and `count`/`sum`/`avg`/`min`/`max` using only the public cache API. Check SQL counts, null results, scalar types, observer/tag invalidation, and bypass behavior against an existing cache entry. Verify the minimum supported PHP/Laravel combination and the current combination. The consumer should use its own database, cache, and vendor directory.
 
 ### Git hooks
 

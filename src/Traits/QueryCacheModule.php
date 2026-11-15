@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Closure;
 use DateTime;
 use Illuminate\Contracts\Cache\Repository as CacheContract;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -71,24 +72,18 @@ trait QueryCacheModule
                 $this->columns = $columns;
             }
 
-            $key = $method === 'exists'
-                ? (clone $this)->getCacheKey($method)
-                : $this->getCacheKey($method);
+            $this->applyBeforeQueryCallbacks();
+
+            // Grammars may consume aggregate, offset, or binding state when compiling SQL.
+            $key = (clone $this)->getCacheKey($method);
             $callback = $this->getQueryCacheCallback($method, $columns, $id);
 
-            // Compiling the key runs before-query callbacks, which may disable caching or add a lock.
+            // Before-query callbacks may disable caching or add a lock.
             if ($this->shouldAvoidCache()) {
                 return $callback();
             }
 
-            $cache = $this->getCache();
-            $time = $this->getCacheFor();
-
-            if ($time instanceof DateTime || $time > 0) {
-                return $cache->remember($key, $time, $callback);
-            }
-
-            return $cache->rememberForever($key, $callback);
+            return $this->rememberQuery($key, $callback);
         } finally {
             $this->columns = $originalColumns;
         }
@@ -102,16 +97,64 @@ trait QueryCacheModule
      */
     public function getQueryCacheCallback(string $method = 'get', $columns = ['*'], ?string $id = null): Closure
     {
-        return function () use ($method, $columns) {
+        /** @var Closure(): (Collection<int, \stdClass>|array<array-key, mixed>|bool) $callback */
+        $callback = $this->getQueryCacheCallbackWithArguments($method, $method === 'exists' ? [] : [$columns]);
+
+        return $callback;
+    }
+
+    /**
+     * Cache an operation whose arguments also affect the shape of its result.
+     *
+     * @param  list<mixed>  $arguments
+     */
+    protected function getFromQueryCacheWithArguments(string $method, array $arguments): mixed
+    {
+        $normalized = array_map(fn ($argument) => $argument instanceof Expression
+            ? ['expression', $this->grammar->getValue($argument)]
+            : ['value', $argument], $arguments);
+
+        $key = (clone $this)->getCacheKey($method, null, serialize($normalized));
+
+        return $this->rememberQuery($key, $this->getQueryCacheCallbackWithArguments($method, $arguments));
+    }
+
+    /**
+     * @param  list<mixed>  $arguments
+     * @return Closure(): mixed
+     */
+    protected function getQueryCacheCallbackWithArguments(string $method, array $arguments): Closure
+    {
+        return function () use ($method, $arguments) {
             $avoidCache = $this->avoidCache;
             $this->avoidCache = true;
 
             try {
-                return $method === 'exists' ? $this->{$method}() : $this->{$method}($columns);
+                return $this->{$method}(...$arguments);
             } finally {
                 $this->avoidCache = $avoidCache;
             }
         };
+    }
+
+    /**
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $callback
+     * @return TResult
+     */
+    protected function rememberQuery(string $key, Closure $callback)
+    {
+        if ($this->shouldAvoidCache()) {
+            return $callback();
+        }
+
+        $cache = $this->getCache();
+        $time = $this->getCacheFor();
+
+        return $time instanceof DateTime || $time > 0
+            ? $cache->remember($key, $time, $callback)
+            : $cache->rememberForever($key, $callback);
     }
 
     /**
