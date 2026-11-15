@@ -182,12 +182,12 @@ jobs:
       - name: Audit dependencies
         run: composer test:security
 
-      - name: Run PostgreSQL lock tests
+      - name: Run PostgreSQL integration tests
         env:
           QUERY_CACHE_PGSQL_DSN: pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=query_cache_test
         run: |
           mkdir -p build
-          vendor/bin/phpunit --filter PostgresLockTest --fail-on-skipped --fail-on-empty-test-suite --log-junit=build/postgres-tests.xml
+          vendor/bin/phpunit --group postgres --fail-on-skipped --fail-on-empty-test-suite --log-junit=build/postgres-tests.xml
 
       - name: Upload PostgreSQL test results
         if: always()

@@ -5,66 +5,13 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Query\Builder;
-use Illuminate\Cache\ArrayStore;
-use Illuminate\Cache\Repository;
-use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\QueryException;
-use Illuminate\Database\Schema\Blueprint;
-use PDO;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
-class PostgresLockTest extends TestCase
+#[Group('postgres')]
+class PostgresLockTest extends PostgresTestCase
 {
-    private ?PostgresConnection $writer = null;
-
-    private ?PostgresConnection $reader = null;
-
-    private ?string $table = null;
-
-    private Repository $cache;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $dsn = getenv('QUERY_CACHE_PGSQL_DSN');
-        if (! $dsn) {
-            $this->markTestSkipped('Set QUERY_CACHE_PGSQL_DSN to run real PostgreSQL lock tests.');
-        }
-
-        $username = getenv('QUERY_CACHE_PGSQL_USER') ?: 'postgres';
-        $password = getenv('QUERY_CACHE_PGSQL_PASSWORD') ?: '';
-        $config = ['name' => 'exists-lock-test', 'driver' => 'pgsql'];
-        $this->writer = new PostgresConnection(new PDO($dsn, $username, $password), '', '', $config);
-        $this->reader = new PostgresConnection(new PDO($dsn, $username, $password), '', '', $config);
-        $this->table = 'query_cache_exists_'.bin2hex(random_bytes(6));
-        $this->writer->getSchemaBuilder()->create($this->table, function (Blueprint $table): void {
-            $table->integer('id')->primary();
-        });
-        $this->writer->table($this->table)->insert(['id' => 1]);
-        $this->reader->statement("set lock_timeout = '200ms'");
-        $this->cache = new Repository(new ArrayStore);
-    }
-
-    protected function tearDown(): void
-    {
-        try {
-            if ($this->writer !== null) {
-                if ($this->writer->transactionLevel() > 0) {
-                    $this->writer->rollBack();
-                }
-                if ($this->table !== null) {
-                    $this->writer->getSchemaBuilder()->dropIfExists($this->table);
-                }
-            }
-        } finally {
-            $this->reader?->disconnect();
-            $this->writer?->disconnect();
-            parent::tearDown();
-        }
-    }
-
     public static function lockModes(): iterable
     {
         foreach (['update', 'shared', 'custom', 'skip locked'] as $lock) {
