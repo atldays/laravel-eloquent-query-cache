@@ -14,6 +14,8 @@ Before opening an issue or pull request:
 
 ## Development Workflow
 
+Local development requires PHP 8.4.1+ for the current PHPUnit and Testbench versions. CI overrides these development dependencies to test Laravel 12 and PHP 8.2/8.3; the package's runtime requirements remain those declared in `require`.
+
 ### Code style
 
 This project uses [Laravel Pint](https://laravel.com/docs/pint) for formatting.

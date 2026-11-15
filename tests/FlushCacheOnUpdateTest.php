@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PageFactory;
 use Atldays\QueryCache\Test\Models\Page;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,7 +17,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_create(bool $strictMode)
     {
-        $page = factory(Page::class)->create();
+        $page = PageFactory::new()->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "pages" limit 1a:0:{}', ['test']);
 
@@ -42,7 +43,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_update(bool $strictMode)
     {
-        $page = factory(Page::class)->create();
+        $page = PageFactory::new()->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "pages" limit 1a:0:{}', ['test']);
 
@@ -68,7 +69,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_delete(bool $strictMode)
     {
-        $page = factory(Page::class)->create();
+        $page = PageFactory::new()->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "pages" limit 1a:0:{}', ['test']);
 
@@ -92,7 +93,7 @@ class FlushCacheOnUpdateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_flush_cache_on_force_deletion(bool $strictMode)
     {
-        $page = factory(Page::class)->create();
+        $page = PageFactory::new()->create();
         $storedPage = Page::cacheFor(now()->addHours(1))->first();
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "pages" limit 1a:0:{}', ['test']);
 

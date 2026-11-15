@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
-use Atldays\QueryCache\Test\Models\Role;
-use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\Factories\RoleFactory;
+use Atldays\QueryCache\Test\Factories\UserFactory;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -19,8 +19,8 @@ class FlushCacheOnUpdatePivotTest extends BaseTestCase
     {
         $key = 'leqc:sqlitegetselect "roles".*, "role_user"."user_id" as "pivot_user_id", "role_user"."role_id" as "pivot_role_id" from "roles" inner join "role_user" on "roles"."id" = "role_user"."role_id" where "role_user"."user_id" = ? limit 1a:1:{i:0;i:1;}';
 
-        $user = factory(User::class)->create();
-        $role = factory(Role::class)->create();
+        $user = UserFactory::new()->create();
+        $role = RoleFactory::new()->create();
         $storedRoles = $user->roles()->cacheFor(now()->addHours(1))->cacheTags(["user:{$user->id}:roles"])->get();
         $cache = $this->getCacheWithTags($key, ["user:{$user->id}:roles"]);
 

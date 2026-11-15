@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
@@ -17,9 +18,9 @@ class CountTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_count(bool $strictMode)
     {
-        $posts = factory(Post::class, 5)->create();
+        $posts = PostFactory::new()->count(5)->create();
         $postsCount = Post::cacheFor(now()->addHours(1))->count();
-        $cache = Cache::get('leqc:sqlitegetselect count(*) as aggregate from "posts"a:0:{}');
+        $cache = Cache::get($this->countCacheKey());
 
         $this->assertNotNull($cache);
 
@@ -35,9 +36,9 @@ class CountTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_count_with_columns(bool $strictMode)
     {
-        $posts = factory(Post::class, 5)->create();
+        $posts = PostFactory::new()->count(5)->create();
         $postsCount = Post::cacheFor(now()->addHours(1))->count('name');
-        $cache = Cache::get('leqc:sqlitegetselect count("name") as aggregate from "posts"a:0:{}');
+        $cache = Cache::get($this->countCacheKey('name'));
 
         $this->assertNotNull($cache);
 

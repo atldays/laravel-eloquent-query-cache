@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Livewire\Component;
@@ -22,7 +23,7 @@ class LivewireTest extends BaseTestCase
         // Keep this regression covered when Livewire polling already defines a callback.
         Livewire::component('post', PostComponent::class);
 
-        $posts = factory(Post::class, 30)->create();
+        $posts = PostFactory::new()->count(30)->create();
 
         /** @var Testable $component */
         Livewire::test(PostComponent::class, ['post' => $posts->first()])

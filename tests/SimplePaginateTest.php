@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +18,7 @@ class SimplePaginateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_simple_paginate(bool $strictMode)
     {
-        $posts = factory(Post::class, 30)->create();
+        $posts = PostFactory::new()->count(30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->simplePaginate(15);
         $cache = Cache::get('leqc:sqlitegetselect * from "posts" limit 16 offset 0a:0:{}');
 
@@ -40,7 +41,7 @@ class SimplePaginateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_simple_paginate_with_columns(bool $strictMode)
     {
-        $posts = factory(Post::class, 30)->create();
+        $posts = PostFactory::new()->count(30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->simplePaginate(15, ['name']);
         $cache = Cache::get('leqc:sqlitegetselect "name" from "posts" limit 16 offset 0a:0:{}');
 

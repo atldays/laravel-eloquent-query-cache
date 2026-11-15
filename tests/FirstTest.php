@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +18,7 @@ class FirstTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_first(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->first();
         $cache = Cache::get('leqc:sqlitegetselect * from "posts" limit 1a:0:{}');
 
@@ -35,7 +36,7 @@ class FirstTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_first_with_columns(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->first(['name']);
         $cache = Cache::get('leqc:sqlitegetselect "name" from "posts" limit 1a:0:{}');
 

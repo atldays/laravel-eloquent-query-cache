@@ -14,6 +14,10 @@ If you only need the core package behavior, use the original documentation above
 
 ## Installation
 
+Requires PHP 8.2+ and Laravel 12.72+ or 13.42+. Laravel 13 requires PHP 8.3+.
+
+Laravel 10 and 11 are no longer supported because they have reached the end of their security support period.
+
 ```bash
 composer require atldays/laravel-eloquent-query-cache
 ```
@@ -97,6 +101,7 @@ $tagged = Post::cacheFor(600)->cacheTags(['posts'])->get();
 ```bash
 vendor/bin/pint --test
 vendor/bin/phpunit
+composer test:security
 ```
 
 If you run the project through Docker, the commands used in this repository are:
