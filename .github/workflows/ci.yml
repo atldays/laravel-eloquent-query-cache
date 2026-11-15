@@ -51,6 +51,10 @@ jobs:
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.prefer }}
     runs-on: ubuntu-26.04
 
+    permissions:
+      contents: read
+      id-token: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -107,6 +111,7 @@ jobs:
 
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
-          fail_ci_if_error: false
+          fail_ci_if_error: true
           files: coverage_array.xml,coverage_file.xml
           disable_search: true
+          use_oidc: true
