@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +18,7 @@ class GetTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_get(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get();
         $cache = Cache::get('leqc:sqlitegetselect * from "posts"a:0:{}');
 
@@ -40,7 +41,7 @@ class GetTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_get_with_columns(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get(['name']);
         $cache = Cache::get('leqc:sqlitegetselect "name" from "posts"a:0:{}');
 
@@ -63,7 +64,7 @@ class GetTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_get_with_string_columns(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->get('name');
         $cache = Cache::get('leqc:sqlitegetselect "name" from "posts"a:0:{}');
 

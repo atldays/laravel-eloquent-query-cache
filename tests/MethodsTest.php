@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\BookFactory;
+use Atldays\QueryCache\Test\Factories\KidFactory;
+use Atldays\QueryCache\Test\Factories\PostFactory;
+use Atldays\QueryCache\Test\Factories\UserFactory;
 use Atldays\QueryCache\Test\Models\Book;
 use Atldays\QueryCache\Test\Models\Kid;
 use Atldays\QueryCache\Test\Models\Post;
@@ -20,7 +24,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_do_not_cache(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
 
         $storedPost = Post::cacheFor(now()->addHours(1))->doNotCache()->first();
         $cache = Cache::get('leqc:sqlitegetselect * from "posts" limit 1a:0:{}');
@@ -37,7 +41,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_prefix(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cachePrefix('test')->first();
         $cache = Cache::get('test:sqlitegetselect * from "posts" limit 1a:0:{}');
 
@@ -50,7 +54,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_tags(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "posts" limit 1a:0:{}');
@@ -71,7 +75,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_the_right_tag(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "posts" limit 1a:0:{}', ['test']);
@@ -89,7 +93,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_without_the_right_tag(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "posts" limit 1a:0:{}', ['test']);
@@ -113,7 +117,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_more_tags(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "posts" limit 1a:0:{}', ['test']);
@@ -135,7 +139,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_cache_flush_with_default_tags_attached(bool $strictMode)
     {
-        $book = factory(Book::class)->create();
+        $book = BookFactory::new()->create();
         $storedBook = Book::cacheFor(now()->addHours(1))->cacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "books" limit 1a:0:{}', ['test', Book::getCacheBaseTags()[0]]);
@@ -154,7 +158,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_hashed_key(bool $strictMode)
     {
-        $kid = factory(Kid::class)->create();
+        $kid = KidFactory::new()->create();
         $storedKid = Kid::cacheFor(now()->addHours(1))->withPlainKey(false)->first();
         $cache = Cache::get('leqc:156667fa9bcb7fb8abb01018568648406f251ef65736e89e6fd27d08bc48b5bb');
 
@@ -167,7 +171,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPost = Post::cacheFor(now()->addHours(1))->appendCacheTags(['test'])->first();
 
         $cache = $this->getCacheWithTags('leqc:sqlitegetselect * from "posts" limit 1a:0:{}');
@@ -188,7 +192,7 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_multiple_append_cache_tags(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $storedPostQuery = Post::cacheFor(now()->addHours(1))->appendCacheTags(['test'])->appendCacheTags(['test2']);
 
         $this->assertEquals($storedPostQuery->getQuery()->getCacheTags(), ['test', 'test2']);
@@ -200,9 +204,9 @@ class MethodsTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_append_cache_tags_with_sub_query(bool $strictMode)
     {
-        $user = factory(User::class)->create();
+        $user = UserFactory::new()->create();
 
-        factory(Post::class)->createMany([
+        PostFactory::new()->createMany([
             ['user_id' => $user->id, 'name' => 'Post 1 on topic 1'],
             ['user_id' => $user->id, 'name' => 'Post 2 on topic 1'],
             ['user_id' => $user->id, 'name' => 'Post 3 on topic 2'],

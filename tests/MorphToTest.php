@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Comment;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
@@ -18,7 +19,7 @@ class MorphToTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_morph_to_relation_inherits_cache_configuration(bool $strictMode)
     {
-        $post = factory(Post::class)->create();
+        $post = PostFactory::new()->create();
         $comment = Comment::query()->create([
             'body' => 'Test comment',
             'commentable_id' => $post->id,

@@ -26,6 +26,26 @@ class Builder extends BaseBuilder implements QueryCacheModuleInterface
     }
 
     /**
+     * Determine if any rows exist without hydrating models.
+     */
+    public function exists(): bool
+    {
+        $this->applyBeforeQueryCallbacks();
+
+        return $this->shouldAvoidCache()
+            ? (clone $this)->runExistsQuery()
+            : $this->getFromQueryCache('exists');
+    }
+
+    /**
+     * Run Laravel's native query on a copy because grammars may mutate query state.
+     */
+    protected function runExistsQuery(): bool
+    {
+        return parent::exists();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function useWritePdo()

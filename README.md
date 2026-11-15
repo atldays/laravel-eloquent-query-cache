@@ -14,6 +14,10 @@ If you only need the core package behavior, use the original documentation above
 
 ## Installation
 
+Requires PHP 8.2+ and Laravel 12.72+ or 13.42+. Laravel 13 requires PHP 8.3+.
+
+Laravel 10 and 11 are no longer supported because they have reached the end of their security support period.
+
 ```bash
 composer require atldays/laravel-eloquent-query-cache
 ```
@@ -30,6 +34,52 @@ class Post extends Model
 ```
 
 ## What This Fork Adds
+
+### Cached existence checks
+
+`exists()` caches a boolean result using Laravel's native existence query without loading models. Both `true` and `false` are cached. `doesntExist()` shares the same cache entry and returns its opposite.
+
+```php
+$query = Post::where('slug', $slug)->cacheFor(60);
+
+$exists = $query->exists();
+$missing = $query->doesntExist();
+
+// A repeated equivalent query uses the same cached boolean.
+$exists = Post::where('slug', $slug)->cacheFor(60)->exists();
+```
+
+Existence checks have separate cache keys from `get()` and support the same drivers, repositories, tags, prefixes, and plain or hashed keys. A builder can be reused for `exists()` and subsequent `get()` calls with different columns.
+
+```php
+$exists = Post::where('slug', $slug)
+    ->cacheFor(300)
+    ->cacheDriver('redis')
+    ->cacheTags(['posts'])
+    ->cachePrefix('published-posts')
+    ->exists();
+
+$fresh = Post::where('slug', $slug)->dontCache()->exists();
+$fresh = Post::where('slug', $slug)->doNotCache()->exists();
+$fresh = Post::where('slug', $slug)->cacheFor(null)->exists();
+```
+
+The package's TTL rules apply to both `get()` and `exists()`:
+
+| Setting | Behavior |
+| --- | --- |
+| `cacheFor(null)` | Bypass cache reads and writes |
+| `cacheFor(60)` | Cache for 60 seconds |
+| `cacheFor(now()->addMinute())` | Cache until the given time |
+| `cacheFor(0)`, a negative TTL, or `cacheForever()` | Cache without expiration |
+
+Cached existence checks can remain stale until they expire or are invalidated. Existing tag invalidation and model observers apply to them as well; tag support depends on the cache store.
+
+Queries with `lockForUpdate()`, `sharedLock()`, or a string lock always bypass cache reads and writes, regardless of whether the lock is set before or after `cacheFor()`. The existing `useWritePdo()` cache bypass is preserved.
+
+```php
+$exists = Post::whereKey($id)->lockForUpdate()->cacheFor(60)->exists();
+```
 
 ### `MorphTo` caching support
 
@@ -90,20 +140,6 @@ $post = Post::cacheFor(now()->addHour())->first();
 $uncached = Post::dontCache()->get();
 
 $tagged = Post::cacheFor(600)->cacheTags(['posts'])->get();
-```
-
-## Testing
-
-```bash
-vendor/bin/pint --test
-vendor/bin/phpunit
-```
-
-If you run the project through Docker, the commands used in this repository are:
-
-```bash
-docker run --rm -u $(id -u):$(id -g) -v "$PWD:/app" -w /app composer:2 sh -lc 'vendor/bin/pint --test'
-docker run --rm -u $(id -u):$(id -g) -v "$PWD:/app" -w /app composer:2 sh -lc 'composer test'
 ```
 
 ## Contributing

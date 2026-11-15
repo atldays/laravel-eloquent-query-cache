@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
+use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
@@ -17,11 +18,11 @@ class PaginateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_paginate(bool $strictMode)
     {
-        $posts = factory(Post::class, 30)->create();
+        $posts = PostFactory::new()->count(30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->paginate(15);
         $postsCount = $posts->count();
 
-        $totalCountCache = Cache::get('leqc:sqlitegetselect count(*) as aggregate from "posts"a:0:{}');
+        $totalCountCache = Cache::get($this->countCacheKey());
         $postsCache = Cache::get('leqc:sqlitegetselect * from "posts" limit 15 offset 0a:0:{}');
 
         $this->assertNotNull($totalCountCache);
@@ -42,11 +43,11 @@ class PaginateTest extends BaseTestCase
     #[DataProvider('strictModeContextProvider')]
     public function test_paginate_with_columns(bool $strictMode)
     {
-        $posts = factory(Post::class, 30)->create();
+        $posts = PostFactory::new()->count(30)->create();
         $storedPosts = Post::cacheFor(now()->addHours(1))->paginate(15, ['name']);
         $postsCount = $posts->count();
 
-        $totalCountCache = Cache::get('leqc:sqlitegetselect count(*) as aggregate from "posts"a:0:{}');
+        $totalCountCache = Cache::get($this->countCacheKey());
         $postsCache = Cache::get('leqc:sqlitegetselect "name" from "posts" limit 15 offset 0a:0:{}');
 
         $this->assertNotNull($totalCountCache);

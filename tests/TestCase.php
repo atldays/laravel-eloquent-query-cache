@@ -43,7 +43,6 @@ abstract class TestCase extends Orchestra
         $this->loadLaravelMigrations(['--database' => 'sqlite']);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-        $this->withFactories(__DIR__.'/database/factories');
 
         $this->artisan('migrate', ['--database' => 'sqlite']);
     }
@@ -121,6 +120,14 @@ abstract class TestCase extends Orchestra
         return $this->driverSupportsTags()
             ? Cache::tags($tags)->get($key)
             : Cache::get($key);
+    }
+
+    protected function countCacheKey(string $column = '*'): string
+    {
+        $query = $this->app['db']->connection()->table('posts');
+        $query->aggregate = ['function' => 'count', 'columns' => [$column]];
+
+        return 'leqc:sqliteget'.$query->toSql().'a:0:{}';
     }
 
     public static function strictModeContextProvider(): iterable
