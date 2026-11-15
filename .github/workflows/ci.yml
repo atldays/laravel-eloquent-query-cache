@@ -51,10 +51,6 @@ jobs:
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.prefer }}
     runs-on: ubuntu-26.04
 
-    permissions:
-      contents: read
-      id-token: write
-
     strategy:
       fail-fast: false
       matrix:
@@ -63,9 +59,11 @@ jobs:
         prefer: [prefer-lowest, prefer-stable]
         include:
           - laravel: 12.*
+            laravel-major: '12'
             testbench: ^10.12
             phpunit: ^12.5.44
           - laravel: 13.*
+            laravel-major: '13'
             testbench: ^11.3
             phpunit: ^13.4.7
           - php: '8.2'
@@ -106,12 +104,16 @@ jobs:
 
       - name: Run tests
         run: |
-          CACHE_DRIVER="array" vendor/bin/phpunit --coverage-text --coverage-clover=coverage_array.xml
-          CACHE_DRIVER="file" vendor/bin/phpunit --coverage-text --coverage-clover=coverage_file.xml
+          CACHE_DRIVER="array" vendor/bin/phpunit --coverage-text --coverage-clover=coverage_array.xml --coverage-html=coverage/array
+          CACHE_DRIVER="file" vendor/bin/phpunit --coverage-text --coverage-clover=coverage_file.xml --coverage-html=coverage/file
 
-      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          fail_ci_if_error: true
-          files: coverage_array.xml,coverage_file.xml
-          disable_search: true
-          use_oidc: true
+          name: coverage-php-${{ matrix.php }}-laravel-${{ matrix.laravel-major }}-${{ matrix.prefer }}
+          path: |
+            coverage_array.xml
+            coverage_file.xml
+            coverage/
+          if-no-files-found: error
+          retention-days: 14

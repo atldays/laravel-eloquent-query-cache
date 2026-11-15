@@ -16,6 +16,8 @@ Before opening an issue or pull request:
 
 Local development requires PHP 8.4.1+ for the current PHPUnit and Testbench versions. CI overrides these development dependencies to test Laravel 12 and PHP 8.2/8.3; the package's runtime requirements remain those declared in `require`.
 
+CI saves XML and HTML coverage reports for both cache drivers as GitHub Actions artifacts for each matrix combination. The artifacts are retained for 14 days; open `coverage/array/index.html` or `coverage/file/index.html` after downloading an artifact to view the reports.
+
 ### Code style
 
 This project uses [Laravel Pint](https://laravel.com/docs/pint) for formatting.
