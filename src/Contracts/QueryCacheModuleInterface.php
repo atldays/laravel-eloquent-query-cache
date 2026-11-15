@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Contracts;
 
+use Illuminate\Support\Collection;
+
 interface QueryCacheModuleInterface
 {
     /**
@@ -15,7 +17,7 @@ interface QueryCacheModuleInterface
      * Get the query cache callback.
      *
      * @param  array|string  $columns
-     * @return \Closure
+     * @return \Closure(): (Collection<int, \stdClass>|array<array-key, mixed>|bool)
      */
     public function getQueryCacheCallback(string $method = 'get', $columns = ['*'], ?string $id = null);
 }

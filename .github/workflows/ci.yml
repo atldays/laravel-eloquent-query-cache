@@ -117,3 +117,83 @@ jobs:
             coverage/
           if-no-files-found: error
           retention-days: 14
+
+  postgres:
+    name: PostgreSQL 17 - Laravel ${{ matrix.laravel-major }}
+    runs-on: ubuntu-26.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - laravel: 12.*
+            laravel-major: '12'
+            testbench: ^10.12
+            phpunit: ^12.5.44
+          - laravel: 13.*
+            laravel-major: '13'
+            testbench: ^11.3
+            phpunit: ^13.4.7
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: query_cache_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U postgres -d query_cache_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      QUERY_CACHE_PGSQL_USER: postgres
+      QUERY_CACHE_PGSQL_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pdo, pdo_pgsql, xml, xmlwriter
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.composer/cache/files
+          key: composer-postgres-8.5-${{ matrix.laravel }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-postgres-8.5-${{ matrix.laravel }}-
+            composer-php-8.5-${{ matrix.laravel }}-prefer-stable-
+
+      - name: Install dependencies
+        run: |
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" --no-interaction --no-update -W
+          composer update -W --prefer-stable --prefer-dist --no-interaction
+
+      - name: Audit dependencies
+        run: composer test:security
+
+      - name: Run PostgreSQL lock tests
+        env:
+          QUERY_CACHE_PGSQL_DSN: pgsql:host=127.0.0.1;port=${{ job.services.postgres.ports['5432'] }};dbname=query_cache_test
+        run: |
+          mkdir -p build
+          vendor/bin/phpunit --filter PostgresLockTest --fail-on-skipped --fail-on-empty-test-suite --log-junit=build/postgres-tests.xml
+
+      - name: Upload PostgreSQL test results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: postgres-laravel-${{ matrix.laravel-major }}-attempt-${{ github.run_attempt }}
+          path: build/postgres-tests.xml
+          if-no-files-found: ignore
+          retention-days: 14

@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Closure;
 use DateTime;
 use Illuminate\Contracts\Cache\Repository as CacheContract;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 trait QueryCacheModule
@@ -55,37 +56,61 @@ trait QueryCacheModule
     /**
      * Get the cache from the current query.
      *
-     * @return array
+     * @return ($method is 'exists' ? bool : ($method is 'get' ? Collection<int, \stdClass> : Collection<int, \stdClass>|array<array-key, mixed>|bool))
      */
     public function getFromQueryCache(string $method = 'get', array $columns = ['*'], ?string $id = null)
     {
-        if (is_null($this->columns)) {
-            $this->columns = $columns;
+        if ($method === 'exists') {
+            $this->applyBeforeQueryCallbacks();
         }
 
-        $key = $this->getCacheKey($method);
-        $cache = $this->getCache();
-        $callback = $this->getQueryCacheCallback($method, $columns, $id);
-        $time = $this->getCacheFor();
+        $originalColumns = $this->columns;
 
-        if ($time instanceof DateTime || $time > 0) {
-            return $cache->remember($key, $time, $callback);
+        try {
+            if ($method === 'get' && is_null($this->columns)) {
+                $this->columns = $columns;
+            }
+
+            $key = $method === 'exists'
+                ? (clone $this)->getCacheKey($method)
+                : $this->getCacheKey($method);
+            $callback = $this->getQueryCacheCallback($method, $columns, $id);
+
+            // Compiling the key runs before-query callbacks, which may disable caching or add a lock.
+            if ($this->shouldAvoidCache()) {
+                return $callback();
+            }
+
+            $cache = $this->getCache();
+            $time = $this->getCacheFor();
+
+            if ($time instanceof DateTime || $time > 0) {
+                return $cache->remember($key, $time, $callback);
+            }
+
+            return $cache->rememberForever($key, $callback);
+        } finally {
+            $this->columns = $originalColumns;
         }
-
-        return $cache->rememberForever($key, $callback);
     }
 
     /**
      * Get the query cache callback.
      *
      * @param  array|string  $columns
+     * @return Closure(): (Collection<int, \stdClass>|array<array-key, mixed>|bool)
      */
     public function getQueryCacheCallback(string $method = 'get', $columns = ['*'], ?string $id = null): Closure
     {
         return function () use ($method, $columns) {
+            $avoidCache = $this->avoidCache;
             $this->avoidCache = true;
 
-            return $this->{$method}($columns);
+            try {
+                return $method === 'exists' ? $this->{$method}() : $this->{$method}($columns);
+            } finally {
+                $this->avoidCache = $avoidCache;
+            }
         };
     }
 
@@ -315,7 +340,7 @@ trait QueryCacheModule
      */
     public function shouldAvoidCache(): bool
     {
-        return $this->avoidCache;
+        return $this->avoidCache || $this->lock !== null;
     }
 
     /**
