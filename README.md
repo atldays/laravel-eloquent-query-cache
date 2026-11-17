@@ -167,7 +167,21 @@ $commentable = $comment->commentable()
     ->first();
 ```
 
-This is useful when you want polymorphic relations to behave the same way as the rest of your cached query chains.
+During eager loading with `with()` or `load()`, related models that use query caching inherit the relation's TTL, cache store, tags, prefix, and key format as defaults. Explicit cache tags are optional. Laravel then runs the user-defined `constrain()` callback for each queried type. That callback can add filters or projections, override the inherited cache settings, or call `dontCache()` for that type.
+
+```php
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+
+$comments = Comment::with(['commentable' => function (MorphTo $relation): void {
+    $relation->cacheFor(60)->constrain([
+        Post::class => fn ($query) => $query
+            ->where('published', true)
+            ->dontCache(),
+    ]);
+}])->get();
+```
+
+In this example, posts are read directly from the database with the published filter. Other cacheable types inherit the relation's cache settings. Use model class names as constraint keys for compatibility across supported Laravel versions. When selecting specific columns, include the key Laravel uses to match the related model and any keys needed by nested relationships.
 
 ### Cache configuration inheritance for relationships
 
