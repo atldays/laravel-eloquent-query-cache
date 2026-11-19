@@ -27,7 +27,7 @@ abstract class PostgresTestCase extends TestCase
         parent::setUp();
 
         $dsn = getenv('QUERY_CACHE_PGSQL_DSN');
-        if (! $dsn) {
+        if (!$dsn) {
             $this->markTestSkipped('Set QUERY_CACHE_PGSQL_DSN to run PostgreSQL integration tests.');
         }
 
@@ -36,7 +36,7 @@ abstract class PostgresTestCase extends TestCase
         $config = ['name' => 'postgres-query-cache-test', 'driver' => 'pgsql'];
         $this->writer = new PostgresConnection(new PDO($dsn, $username, $password), '', '', $config);
         $this->reader = new PostgresConnection(new PDO($dsn, $username, $password), '', '', $config);
-        $this->table = 'query_cache_'.bin2hex(random_bytes(6));
+        $this->table = 'query_cache_' . bin2hex(random_bytes(6));
         $this->writer->getSchemaBuilder()->create($this->table, function (Blueprint $table): void {
             $table->integer('id')->primary();
             $table->decimal('amount', 38, 8)->nullable();

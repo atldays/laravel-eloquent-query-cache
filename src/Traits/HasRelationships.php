@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Traits;
 
-use Atldays\QueryCache\Relations\BelongsToMany;
-use Atldays\QueryCache\Relations\MorphTo;
-use Atldays\QueryCache\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Atldays\QueryCache\Relations\{BelongsToMany, MorphTo, MorphToMany};
+use Illuminate\Database\Eloquent\{Builder, Model};
 
 /**
  * @mixin Model

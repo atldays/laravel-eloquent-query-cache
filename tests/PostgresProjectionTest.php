@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Illuminate\Database\QueryException;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\{DataProvider, DataProviderExternal, Group};
 
 #[Group('postgres')]
 class PostgresProjectionTest extends PostgresTestCase
@@ -32,7 +30,7 @@ class PostgresProjectionTest extends PostgresTestCase
             'custom' => $query->lock('for update'),
             'skip locked' => $query->lock('for update skip locked'),
         };
-        if (! $cacheFirst) {
+        if (!$cacheFirst) {
             $query->cacheFor(60);
         }
 
@@ -75,7 +73,7 @@ class PostgresProjectionTest extends PostgresTestCase
         $this->writer->table($this->table)->insert(['id' => 2, 'amount' => '0.00000002']);
         $expected = $this->reader->table($this->table)->{$function}('amount');
         $this->assertIsString($expected);
-        $query = $this->cached();
+        $query = $this->cached()->cacheLock(waitSeconds: 0);
         $this->reader->enableQueryLog();
         $this->reader->flushQueryLog();
 
@@ -87,7 +85,7 @@ class PostgresProjectionTest extends PostgresTestCase
 
     public function test_value_and_pluck_keep_exact_decimals_and_native_false(): void
     {
-        $query = $this->cached()->where('id', 1);
+        $query = $this->cached()->where('id', 1)->cacheLock(waitSeconds: 0);
         $this->reader->enableQueryLog();
         $this->reader->flushQueryLog();
         for ($i = 0; $i < 2; $i++) {
@@ -120,7 +118,7 @@ class PostgresProjectionTest extends PostgresTestCase
         $keyQuery = clone $query;
         $keyQuery->aggregate = ['function' => $function, 'columns' => ['amount']];
         $key = $keyQuery->getCacheKey('get');
-        $stale = collect([(object) ['aggregate' => '99']]);
+        $stale = collect([(object)['aggregate' => '99']]);
         $this->cache->forever($key, $stale);
         $keys = $this->cache->keys;
         $writes = $this->cache->writes;

@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Query\Builder;
-use Atldays\QueryCache\Test\Factories\PostFactory;
-use Atldays\QueryCache\Test\Factories\UserFactory;
+use Atldays\QueryCache\Test\Factories\{PostFactory, UserFactory};
 use Atldays\QueryCache\Test\Models\Metric;
 use Atldays\QueryCache\Test\Support\RecordingRepository;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
+use Illuminate\Support\Facades\{Cache, DB};
+use PHPUnit\Framework\Attributes\{DataProvider, DataProviderExternal};
 
 class PluckTest extends ProjectionTestCase
 {

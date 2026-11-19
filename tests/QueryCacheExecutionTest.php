@@ -25,7 +25,7 @@ class QueryCacheExecutionTest extends TestCase
     {
         foreach (['get', 'exists'] as $method) {
             foreach ([false, true] as $avoid) {
-                yield $method.($avoid ? ' disabled' : ' enabled') => [true, $method, $avoid];
+                yield $method . ($avoid ? ' disabled' : ' enabled') => [true, $method, $avoid];
             }
         }
     }
@@ -68,7 +68,7 @@ class QueryCacheExecutionTest extends TestCase
         if ($method === 'exists') {
             $this->assertTrue($result);
         } else {
-            $this->assertSame(['name' => 'needle'], (array) $result->first());
+            $this->assertSame(['name' => 'needle'], (array)$result->first());
         }
         $this->assertSame($avoid, $query->shouldAvoidCache());
         $this->assertNull($query->columns);
@@ -109,7 +109,7 @@ class QueryCacheExecutionTest extends TestCase
             if ($method === 'exists') {
                 $this->assertTrue($query->exists());
             } else {
-                $this->assertSame(['name' => 'needle'], (array) $query->get(['name'])->first());
+                $this->assertSame(['name' => 'needle'], (array)$query->get(['name'])->first());
             }
         }
         $this->assertFalse($query->shouldAvoidCache());
@@ -125,9 +125,9 @@ class QueryCacheExecutionTest extends TestCase
         DB::flushQueryLog();
 
         for ($attempt = 0; $attempt < 2; $attempt++) {
-            $this->assertSame(['id' => $post->id], (array) $query->get(['id'])->first());
-            $this->assertSame(['name' => 'needle'], (array) $query->get(['name'])->first());
-            $this->assertSame(['id' => $post->id, 'name' => 'needle'], (array) $query->get(['id', 'name'])->first());
+            $this->assertSame(['id' => $post->id], (array)$query->get(['id'])->first());
+            $this->assertSame(['name' => 'needle'], (array)$query->get(['name'])->first());
+            $this->assertSame(['id' => $post->id, 'name' => 'needle'], (array)$query->get(['id', 'name'])->first());
             $this->assertNull($query->columns);
             $this->assertFalse($query->shouldAvoidCache());
         }
@@ -143,7 +143,7 @@ class QueryCacheExecutionTest extends TestCase
             $query->where('name', 'needle')->select('name');
         });
 
-        $this->assertSame(['name' => 'needle'], (array) $query->get(['id'])->first());
+        $this->assertSame(['name' => 'needle'], (array)$query->get(['id'])->first());
         $this->assertSame(1, $calls);
         $this->assertSame(['needle'], $query->getBindings());
         $this->assertNull($query->columns);

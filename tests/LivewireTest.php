@@ -7,9 +7,8 @@ namespace Atldays\QueryCache\Test;
 use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
-use Livewire\Component;
+use Livewire\{Component, Livewire};
 use Livewire\Features\SupportTesting\Testable;
-use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class LivewireTest extends BaseTestCase

@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Test\Factories\PostFactory;
-use Atldays\QueryCache\Test\Models\Comment;
-use Atldays\QueryCache\Test\Models\Post;
+use Atldays\QueryCache\Test\Models\{Comment, Post};
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;

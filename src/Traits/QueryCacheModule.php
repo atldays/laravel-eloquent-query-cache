@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Traits;
 
+use Atldays\QueryCache\Cache\{CacheLockOptions, CacheStampedeGuard};
 use BadMethodCallException;
 use Closure;
 use DateTime;
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Cache;
 
 trait QueryCacheModule
 {
+    private ?CacheLockOptions $cacheLockOptions = null;
+
+    private bool $cacheLockConfigured = false;
+
     /**
      * The number of seconds or the DateTime instance
      * that specifies how long to cache the query.
@@ -92,7 +97,7 @@ trait QueryCacheModule
     /**
      * Get the query cache callback.
      *
-     * @param  array|string  $columns
+     * @param array|string $columns
      * @return Closure(): (Collection<int, \stdClass>|array<array-key, mixed>|bool)
      */
     public function getQueryCacheCallback(string $method = 'get', $columns = ['*'], ?string $id = null): Closure
@@ -106,7 +111,7 @@ trait QueryCacheModule
     /**
      * Cache an operation whose arguments also affect the shape of its result.
      *
-     * @param  list<mixed>  $arguments
+     * @param list<mixed> $arguments
      */
     protected function getFromQueryCacheWithArguments(string $method, array $arguments): mixed
     {
@@ -120,7 +125,7 @@ trait QueryCacheModule
     }
 
     /**
-     * @param  list<mixed>  $arguments
+     * @param list<mixed> $arguments
      * @return Closure(): mixed
      */
     protected function getQueryCacheCallbackWithArguments(string $method, array $arguments): Closure
@@ -140,7 +145,7 @@ trait QueryCacheModule
     /**
      * @template TResult
      *
-     * @param  Closure(): TResult  $callback
+     * @param Closure(): TResult $callback
      * @return TResult
      */
     protected function rememberQuery(string $key, Closure $callback)
@@ -151,6 +156,11 @@ trait QueryCacheModule
 
         $cache = $this->getCache();
         $time = $this->getCacheFor();
+        $options = $this->getCacheLockOptions();
+
+        if ($options !== null) {
+            $cache = new CacheStampedeGuard($cache, $options);
+        }
 
         return $time instanceof DateTime || $time > 0
             ? $cache->remember($key, $time, $callback)
@@ -191,10 +201,10 @@ trait QueryCacheModule
 
         // Count has no Sql, that's why it can't be used ->toSql()
         if ($method === 'count') {
-            return $name.$method.$id.serialize($this->getBindings()).$appends;
+            return $name . $method . $id . serialize($this->getBindings()) . $appends;
         }
 
-        return $name.$method.$id.$this->toSql().serialize($this->getBindings()).$appends;
+        return $name . $method . $id . $this->toSql() . serialize($this->getBindings()) . $appends;
     }
 
     /**
@@ -204,11 +214,11 @@ trait QueryCacheModule
     {
         $cache = $this->getCacheDriver();
 
-        if (! method_exists($cache, 'tags')) {
+        if (!method_exists($cache, 'tags')) {
             return false;
         }
 
-        if (! $tags) {
+        if (!$tags) {
             $tags = $this->getCacheBaseTags();
         }
 
@@ -347,6 +357,43 @@ trait QueryCacheModule
         $this->cacheUsePlainKey = $usePlainKey;
 
         return $this;
+    }
+
+    public function cacheLock(int $seconds = 30, int $waitSeconds = 5): static
+    {
+        $this->cacheLockOptions = new CacheLockOptions($seconds, $waitSeconds);
+        $this->cacheLockConfigured = true;
+
+        return $this;
+    }
+
+    public function withoutCacheLock(): static
+    {
+        $this->cacheLockOptions = null;
+        $this->cacheLockConfigured = true;
+
+        return $this;
+    }
+
+    public function getCacheLockOptions(): ?CacheLockOptions
+    {
+        return $this->cacheLockOptions;
+    }
+
+    /** @internal */
+    public function setDefaultCacheLockOptions(?CacheLockOptions $options): void
+    {
+        if (!$this->cacheLockConfigured) {
+            $this->cacheLockOptions = $options;
+        }
+    }
+
+    /** @internal */
+    public function inheritCacheLockFrom(self $source): void
+    {
+        if ($source->cacheLockConfigured || $source->cacheLockOptions !== null) {
+            $this->setDefaultCacheLockOptions($source->cacheLockOptions);
+        }
     }
 
     /**

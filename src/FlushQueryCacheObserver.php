@@ -6,8 +6,7 @@ namespace Atldays\QueryCache;
 
 use Atldays\QueryCache\Traits\QueryCacheable;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Collection, Model};
 
 class FlushQueryCacheObserver
 {
@@ -134,8 +133,8 @@ class FlushQueryCacheObserver
 
         $tags = $model->getCacheTagsToInvalidateOnUpdate($relation, $pivotedModels);
 
-        if (! $tags) {
-            throw new Exception('Automatic invalidation for '.$class.' works only if at least one tag to be invalidated is specified.');
+        if (!$tags) {
+            throw new Exception('Automatic invalidation for ' . $class . ' works only if at least one tag to be invalidated is specified.');
         }
 
         $class::flushQueryCache($tags);

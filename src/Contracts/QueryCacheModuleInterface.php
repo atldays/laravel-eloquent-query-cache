@@ -16,7 +16,7 @@ interface QueryCacheModuleInterface
     /**
      * Get the query cache callback.
      *
-     * @param  array|string  $columns
+     * @param array|string $columns
      * @return \Closure(): (Collection<int, \stdClass>|array<array-key, mixed>|bool)
      */
     public function getQueryCacheCallback(string $method = 'get', $columns = ['*'], ?string $id = null);

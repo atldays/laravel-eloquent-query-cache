@@ -20,17 +20,17 @@ trait InvalidatesQueryCache
 
         $parent = $this->parent;
 
-        if (! $parent instanceof Model || ! in_array(QueryCacheable::class, class_uses_recursive($parent), true)) {
+        if (!$parent instanceof Model || !in_array(QueryCacheable::class, class_uses_recursive($parent), true)) {
             return;
         }
 
         /** @var QueryCacheable&Model $parent */
-        if (! $parent->shouldFlushCacheOnUpdate() || ! $this->relationName) {
+        if (!$parent->shouldFlushCacheOnUpdate() || !$this->relationName) {
             return;
         }
 
         $observer = new FlushQueryCacheObserver;
-        $method = $this->getQueryCacheInvalidationEventPrefix().$event;
+        $method = $this->getQueryCacheInvalidationEventPrefix() . $event;
 
         if (method_exists($observer, $method)) {
             $observer->{$method}($this->relationName, $parent, array_values($ids));

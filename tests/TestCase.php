@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
-use Atldays\QueryCache\Test\Models\Book;
-use Atldays\QueryCache\Test\Models\Kid;
-use Atldays\QueryCache\Test\Models\Page;
-use Atldays\QueryCache\Test\Models\Post;
-use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\Models\{Book, Kid, Page, Post, User};
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Livewire\LivewireServiceProvider;
@@ -41,8 +37,8 @@ abstract class TestCase extends Orchestra
         $this->clearCache();
 
         $this->loadLaravelMigrations(['--database' => 'sqlite']);
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
         $this->artisan('migrate', ['--database' => 'sqlite']);
     }
@@ -65,7 +61,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
-            'database' => __DIR__.'/database/database.sqlite',
+            'database' => __DIR__ . '/database/database.sqlite',
             'prefix' => '',
         ]);
 
@@ -84,10 +80,10 @@ abstract class TestCase extends Orchestra
         $app['config']->set('app.key', 'wslxrEFGWY6GfGhvN9L3wH3KSRJQQpBD');
 
         $app['config']->set('view.paths', [
-            __DIR__.'/views',
+            __DIR__ . '/views',
         ]);
 
-        $app['config']->set('livewire.view_path', __DIR__.'/views/livewire');
+        $app['config']->set('livewire.view_path', __DIR__ . '/views/livewire');
     }
 
     /**
@@ -97,7 +93,7 @@ abstract class TestCase extends Orchestra
      */
     protected function resetDatabase()
     {
-        file_put_contents(__DIR__.'/database/database.sqlite', '');
+        file_put_contents(__DIR__ . '/database/database.sqlite', '');
     }
 
     /**
@@ -127,7 +123,7 @@ abstract class TestCase extends Orchestra
         $query = $this->app['db']->connection()->table('posts');
         $query->aggregate = ['function' => 'count', 'columns' => [$column]];
 
-        return 'leqc:sqliteget'.$query->toSql().'a:0:{}';
+        return 'leqc:sqliteget' . $query->toSql() . 'a:0:{}';
     }
 
     public static function strictModeContextProvider(): iterable
@@ -156,6 +152,6 @@ abstract class TestCase extends Orchestra
     {
         $driver = config('cache.default', config('cache.driver'));
 
-        return ! in_array($driver, ['file', 'database'], true);
+        return !in_array($driver, ['file', 'database'], true);
     }
 }

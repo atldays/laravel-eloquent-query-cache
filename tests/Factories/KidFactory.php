@@ -17,7 +17,7 @@ class KidFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Kid'.Str::random(5),
+            'name' => 'Kid' . Str::random(5),
         ];
     }
 }

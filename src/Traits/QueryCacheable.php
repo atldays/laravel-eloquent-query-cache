@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Traits;
 
+use Atldays\QueryCache\Cache\CacheLockOptions;
 use Atldays\QueryCache\FlushQueryCacheObserver;
 use Atldays\QueryCache\Query\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Collection, Model};
 
 /**
  * @method static bool flushQueryCache(array $tags = [])
@@ -21,6 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|static appendCacheTags(array $cacheTags = [])
  * @method static \Illuminate\Database\Query\Builder|static cacheDriver(string $cacheDriver)
  * @method static \Illuminate\Database\Query\Builder|static cacheBaseTags(array $tags = [])
+ * @method static \Illuminate\Database\Query\Builder|static cacheLock(int $seconds = 30, int $waitSeconds = 5)
+ * @method static \Illuminate\Database\Query\Builder|static withoutCacheLock()
  */
 trait QueryCacheable
 {
@@ -69,7 +71,7 @@ trait QueryCacheable
     protected function getCacheBaseTags(): array
     {
         return [
-            (string) static::class,
+            (string)static::class,
         ];
     }
 
@@ -142,6 +144,12 @@ trait QueryCacheable
 
         if (method_exists($this, 'cacheUsePlainKeyValue')) {
             $builder->withPlainKey($this->cacheUsePlainKeyValue($builder));
+        }
+
+        if (method_exists($this, 'cacheLockOptionsValue')) {
+            /** @var CacheLockOptions|null $options */
+            $options = $this->cacheLockOptionsValue($builder);
+            $builder->setDefaultCacheLockOptions($options);
         }
 
         return $builder->cacheBaseTags($this->getCacheBaseTags());

@@ -8,8 +8,7 @@ use Atldays\QueryCache\Query\Builder;
 use Atldays\QueryCache\Test\Factories\PostFactory;
 use Atldays\QueryCache\Test\Models\Post;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{Cache, DB};
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class CacheLockTest extends TestCase
@@ -19,7 +18,7 @@ class CacheLockTest extends TestCase
         foreach (['get', 'exists'] as $method) {
             foreach (['update', 'shared', 'custom'] as $lock) {
                 foreach ([false, true] as $cacheFirst) {
-                    yield "$method $lock ".($cacheFirst ? 'cache first' : 'lock first') => [true, $method, $lock, $cacheFirst];
+                    yield "$method $lock " . ($cacheFirst ? 'cache first' : 'lock first') => [true, $method, $lock, $cacheFirst];
                 }
             }
         }

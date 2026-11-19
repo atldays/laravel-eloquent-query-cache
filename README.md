@@ -154,6 +154,70 @@ For Query Builder `get()` and nonempty `pluck()` results, `afterQuery` transform
 
 Temporary state introduced by caching is restored even after SQL or cache errors. Normal Laravel mutations still apply: for example, `value()`/`first()` can leave a limit on a reused builder. Clone a configured builder or start a new query for independent operations. Cached results remain subject to the existing TTL and invalidation rules; model observers require the model's automatic invalidation setting and a suitable cache store.
 
+### Cache stampede protection
+
+Enable protection on a cached query when concurrent requests may miss the same entry. The producer fills that entry under a Laravel cache lock. Other requests wait and check for the stored result after acquiring the lock. Hits return without acquiring a lock.
+
+```php
+$posts = Post::query()
+    ->where('published', true)
+    ->cacheFor(600)
+    ->cacheDriver('redis')
+    ->cacheLock(seconds: 30, waitSeconds: 5)
+    ->get();
+```
+
+- `cacheFor(600)` sets the result TTL.
+- `seconds` sets how long the lock is valid. It must be positive and defaults to 30.
+- `waitSeconds` limits how long to wait for the lock. It defaults to 5. Use 0 for one immediate attempt.
+
+Protection is off by default. `cacheLock()` configures protection, and the query still needs its usual cache configuration. `withoutCacheLock()` turns off protection while keeping normal caching. A later `cacheLock()` can enable it again. To read the settings from Eloquent, use `$query->getQuery()->getCacheLockOptions()`. The getter returns `null` when protection is off.
+
+Models using `QueryCacheable` can define defaults.
+
+```php
+use Atldays\QueryCache\Cache\CacheLockOptions;
+use Atldays\QueryCache\Traits\QueryCacheable;
+use Illuminate\Database\Eloquent\Model;
+
+class Article extends Model
+{
+    use QueryCacheable;
+
+    protected int $cacheFor = 600;
+    protected string $cacheDriver = 'redis';
+
+    protected function cacheLockOptionsValue(): CacheLockOptions
+    {
+        return new CacheLockOptions(seconds: 30, waitSeconds: 5);
+    }
+}
+```
+
+Runtime settings take priority over those defaults. Configure cacheable direct and eager loaded relations on their own query. `MorphTo` inherits the relation's protection before running per-type `constrain()` callbacks. Each callback may change or disable protection for its type. Existing cache bypass, including `dontCache()`, `cacheFor(null)` and SQL locks, takes priority.
+
+Protection covers existing cached query operations. Pagination locks the count and each page query separately. Chunked and lazy iteration take a lock only while filling the cache for an individual query. Open cursors and generators remain uncached.
+
+All workers using a shared cache entry must use the same lock backend and namespace. Use a shared Redis store for coordination between processes or hosts. The `array` driver is useful for tests within one process. Ordinary cache repositories and tagged repositories use their configured store. If different Redis data stores share a separate lock connection, give them distinct store prefixes. A protected miss requires a store with an actual lock and ownership-safe release. File, Memcached, null, memoized and failover stores are unsuitable for protected misses. They can still serve ordinary cache reads where supported.
+
+A wait timeout throws `Illuminate\Contracts\Cache\LockTimeoutException`. Handle it at the caller if a retry or response is appropriate. SQL, cache and lock exceptions propagate. If computation outlasts the lock, another producer can run. The lock coordinates fills while it is valid. Cache invalidation during an in-progress fill can still leave a stale value, and writes to the database carry their existing invalidation responsibilities.
+
+For a callback that does not use a query builder, use the same guard with an ordinary or tagged cache repository.
+
+```php
+use Atldays\QueryCache\Cache\{CacheLockOptions, CacheStampedeGuard};
+use Illuminate\Support\Facades\Cache;
+
+$guard = new CacheStampedeGuard(
+    cache: Cache::store('redis')->tags(['reports']),
+    options: new CacheLockOptions(seconds: 30, waitSeconds: 5),
+);
+
+$report = $guard->remember('report:'.$id, 600, fn () => buildReport($id));
+```
+
+`remember()` accepts Laravel's cache TTL types. Use `rememberForever($key, $callback)` for a value without an expiry. A callback returning `null` keeps Laravel's miss semantics. Integrations that cache nulls can encode and decode them in their own format. Builder-based queries keep the TTL behavior of `cacheFor()` and `cacheForever()`.
+
 ### `MorphTo` caching support
 
 The original package documentation covers the general caching API. This fork additionally supports cached `morphTo` relations with inherited cache configuration.
