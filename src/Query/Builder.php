@@ -41,8 +41,8 @@ class Builder extends BaseBuilder implements QueryCacheModuleInterface
     /**
      * Retrieve a native projection, allowing after-query callbacks to replace it.
      *
-     * @param  string|Expression  $column
-     * @param  string|Expression|null  $key
+     * @param string|Expression $column
+     * @param string|Expression|null $key
      * @return mixed
      */
     public function pluck($column, $key = null)
@@ -97,15 +97,15 @@ class Builder extends BaseBuilder implements QueryCacheModuleInterface
     /**
      * Add a subselect expression to the query.
      *
-     * @param  Closure|$this|string  $query
-     * @param  string  $as
+     * @param Closure|$this|string $query
+     * @param string $as
      * @return $this
      *
      * @throws InvalidArgumentException
      */
     public function selectSub($query, $as)
     {
-        if (! is_string($query) && get_class($query) == self::class) {
+        if (!is_string($query) && get_class($query) == self::class) {
             $this->appendCacheTags($query->getCacheTags() ?? []);
         }
 

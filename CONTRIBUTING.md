@@ -79,6 +79,17 @@ QUERY_CACHE_PGSQL_PASSWORD=postgres \
 vendor/bin/phpunit --group postgres --fail-on-skipped --fail-on-empty-test-suite
 ```
 
+### Redis concurrency tests
+
+The `redis` group uses a Redis service, the phpredis extension and independent PHP processes. The workers share a temporary SQLite database and report actual SQL executions. Each run uses its own Redis key prefix.
+
+```bash
+QUERY_CACHE_REDIS_HOST=127.0.0.1 QUERY_CACHE_REDIS_PORT=6379 \
+  vendor/bin/phpunit --group redis --fail-on-skipped --fail-on-empty-test-suite
+```
+
+CI runs this group on Laravel 12 and 13. Use a dedicated test Redis instance when running it locally.
+
 ### Consumer verification
 
 Before a release, install a copy or archive of the prepared package into a separate temporary Composer project. Exercise `value()`, both forms of `pluck()`, and `count`/`sum`/`avg`/`min`/`max` using only the public cache API. Check SQL counts, null results, scalar types, observer/tag invalidation, and bypass behavior against an existing cache entry. Verify the minimum supported PHP/Laravel combination and the current combination. The consumer should use its own database, cache, and vendor directory.

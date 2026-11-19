@@ -7,8 +7,7 @@ namespace Atldays\QueryCache\Test;
 use Atldays\QueryCache\Query\Builder;
 use Atldays\QueryCache\Test\Models\Metric;
 use Atldays\QueryCache\Test\Support\RecordingRepository;
-use Illuminate\Cache\ArrayStore;
-use Illuminate\Cache\Repository;
+use Illuminate\Cache\{ArrayStore, Repository};
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +29,7 @@ class ProjectionExecutionTest extends ProjectionTestCase
         foreach (self::operations() as [$strict, $method]) {
             foreach (['update', 'shared', 'string'] as $lock) {
                 foreach ([false, true] as $cacheFirst) {
-                    yield "$method $lock ".($cacheFirst ? 'cache first' : 'lock first') => [$strict, $method, $lock, $cacheFirst];
+                    yield "$method $lock " . ($cacheFirst ? 'cache first' : 'lock first') => [$strict, $method, $lock, $cacheFirst];
                 }
             }
         }
@@ -51,7 +50,7 @@ class ProjectionExecutionTest extends ProjectionTestCase
             'shared' => $query->sharedLock(),
             'string' => $query->lock('/* test lock policy, not SQLite row locking */'),
         };
-        if (! $cacheFirst) {
+        if (!$cacheFirst) {
             $query->cacheFor(60);
         }
         $this->recordQueries();
@@ -144,7 +143,7 @@ class ProjectionExecutionTest extends ProjectionTestCase
             $baseCalls = 0;
             $eloquentCalls = 0;
             $make = function () use ($method, &$baseCalls, &$eloquentCalls) {
-                $query = Metric::query()->where('id', 1)->cacheFor(60)->cachePrefix('callbacks-'.$method);
+                $query = Metric::query()->where('id', 1)->cacheFor(60)->cachePrefix('callbacks-' . $method);
                 $query->getQuery()->afterQuery(function ($rows) use ($method, &$baseCalls) {
                     $baseCalls++;
 
@@ -155,7 +154,7 @@ class ProjectionExecutionTest extends ProjectionTestCase
                             return $row;
                         }
 
-                        return $row.'-base';
+                        return $row . '-base';
                     });
                 });
                 $query->afterQuery(function ($rows) use (&$eloquentCalls) {
@@ -204,13 +203,13 @@ class ProjectionExecutionTest extends ProjectionTestCase
         $native = $this->native()->where('id', '<', 3)->orderBy('id');
         $query = $this->cached()->where('id', '<', 3)->orderBy('id');
         $operations = [
-            fn ($builder) => $builder->get(['name'])->map(fn ($row) => (array) $row)->all(),
+            fn ($builder) => $builder->get(['name'])->map(fn ($row) => (array)$row)->all(),
             fn ($builder) => $builder->exists(),
             fn ($builder) => $builder->pluck('score', 'id')->all(),
             fn ($builder) => $builder->value('score'),
             fn ($builder) => $builder->sum('score'),
             fn ($builder) => $builder->count(),
-            fn ($builder) => $builder->get(['id'])->map(fn ($row) => (array) $row)->all(),
+            fn ($builder) => $builder->get(['id'])->map(fn ($row) => (array)$row)->all(),
         ];
         $expected = array_map(fn ($operation) => $operation($native), $operations);
         $this->recordQueries();

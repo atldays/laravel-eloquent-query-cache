@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Query\Builder;
-use Atldays\QueryCache\Test\Factories\PageFactory;
-use Atldays\QueryCache\Test\Factories\PostFactory;
-use Atldays\QueryCache\Test\Models\Page;
-use Atldays\QueryCache\Test\Models\Post;
-use Illuminate\Cache\ArrayStore;
-use Illuminate\Cache\Repository;
+use Atldays\QueryCache\Test\Factories\{PageFactory, PostFactory};
+use Atldays\QueryCache\Test\Models\{Page, Post};
+use Illuminate\Cache\{ArrayStore, Repository};
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{Cache, DB};
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class ExistsTest extends TestCase
@@ -112,10 +108,10 @@ class ExistsTest extends TestCase
         $this->assertTrue($query->exists());
         $this->assertNull($query->columns);
         $rows = $query->get(['name']);
-        $this->assertSame(['name' => 'needle'], (array) $rows->first());
+        $this->assertSame(['name' => 'needle'], (array)$rows->first());
         $this->assertNull($query->columns);
         $this->assertTrue($query->exists());
-        $this->assertSame(['name' => 'needle'], (array) $query->get(['name'])->first());
+        $this->assertSame(['name' => 'needle'], (array)$query->get(['name'])->first());
         $this->assertCount(2, DB::getQueryLog());
     }
 
@@ -139,7 +135,7 @@ class ExistsTest extends TestCase
         PostFactory::new()->count(3)->create(['name' => 'group']);
         $query = $this->cachedPostsQuery()->groupLimit(1, 'name')->offset(5)
             ->orderByRaw('case when id > ? then id else id end', [0]);
-        if (! $cached) {
+        if (!$cached) {
             $query->dontCache();
         }
         $bindings = $query->getRawBindings();
@@ -278,9 +274,9 @@ class ExistsTest extends TestCase
         $query = $this->cachedPostsQuery();
         $this->recordQueries();
 
-        $this->assertSame(! $exists, $query->doesntExist());
+        $this->assertSame(!$exists, $query->doesntExist());
         $this->assertSame($exists, $query->exists());
-        $this->assertSame(! $exists, (clone $query)->doesntExist());
+        $this->assertSame(!$exists, (clone $query)->doesntExist());
         $this->assertCount(1, DB::getQueryLog());
     }
 

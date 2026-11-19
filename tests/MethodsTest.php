@@ -4,14 +4,8 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
-use Atldays\QueryCache\Test\Factories\BookFactory;
-use Atldays\QueryCache\Test\Factories\KidFactory;
-use Atldays\QueryCache\Test\Factories\PostFactory;
-use Atldays\QueryCache\Test\Factories\UserFactory;
-use Atldays\QueryCache\Test\Models\Book;
-use Atldays\QueryCache\Test\Models\Kid;
-use Atldays\QueryCache\Test\Models\Post;
-use Atldays\QueryCache\Test\Models\User;
+use Atldays\QueryCache\Test\Factories\{BookFactory, KidFactory, PostFactory, UserFactory};
+use Atldays\QueryCache\Test\Models\{Book, Kid, Post, User};
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;

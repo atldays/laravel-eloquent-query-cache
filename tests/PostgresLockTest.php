@@ -6,8 +6,7 @@ namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Query\Builder;
 use Illuminate\Database\QueryException;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\{DataProvider, Group};
 
 #[Group('postgres')]
 class PostgresLockTest extends PostgresTestCase
@@ -16,7 +15,7 @@ class PostgresLockTest extends PostgresTestCase
     {
         foreach (['update', 'shared', 'custom', 'skip locked'] as $lock) {
             foreach ([false, true] as $cacheFirst) {
-                yield $lock.($cacheFirst ? ' cache first' : ' lock first') => [$lock, $cacheFirst];
+                yield $lock . ($cacheFirst ? ' cache first' : ' lock first') => [$lock, $cacheFirst];
             }
         }
     }
@@ -37,7 +36,7 @@ class PostgresLockTest extends PostgresTestCase
             'custom' => $query->lock('for update'),
             'skip locked' => $query->lock('for update skip locked'),
         };
-        if (! $cacheFirst) {
+        if (!$cacheFirst) {
             $query->cacheFor(60);
         }
         $key = $query->getCacheKey('exists');

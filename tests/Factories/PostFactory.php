@@ -17,7 +17,7 @@ class PostFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Post'.Str::random(5),
+            'name' => 'Post' . Str::random(5),
         ];
     }
 }

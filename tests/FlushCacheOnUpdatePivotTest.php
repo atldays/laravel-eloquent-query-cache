@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Atldays\QueryCache\Test;
 
-use Atldays\QueryCache\Test\Factories\RoleFactory;
-use Atldays\QueryCache\Test\Factories\UserFactory;
+use Atldays\QueryCache\Test\Factories\{RoleFactory, UserFactory};
 use Atldays\QueryCache\Test\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 

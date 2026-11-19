@@ -124,7 +124,7 @@ class ValueAggregateTest extends ProjectionTestCase
             return match ($mode) {
                 'distinct' => $query->distinct(),
                 'group' => $query->groupBy('category')->orderBy('category'),
-                'having' => $query->selectRaw($function.'(score) as aggregate')->groupBy('category')->havingRaw('count(*) > ?', [1])->orderBy('category'),
+                'having' => $query->selectRaw($function . '(score) as aggregate')->groupBy('category')->havingRaw('count(*) > ?', [1])->orderBy('category'),
             };
         };
         $expected = $configure($this->native())->{$function}('score');

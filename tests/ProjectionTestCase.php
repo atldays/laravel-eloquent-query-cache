@@ -8,8 +8,7 @@ use Atldays\QueryCache\Query\Builder;
 use Atldays\QueryCache\Test\Models\Metric;
 use Illuminate\Database\Query\Builder as NativeBuilder;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\{DB, Schema};
 
 abstract class ProjectionTestCase extends TestCase
 {

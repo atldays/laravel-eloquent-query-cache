@@ -17,7 +17,7 @@ class RoleFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Role'.Str::random(5),
+            'name' => 'Role' . Str::random(5),
         ];
     }
 }

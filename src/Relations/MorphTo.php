@@ -19,7 +19,11 @@ class MorphTo extends Relation
         $target = $query->getQuery();
 
         // Apply defaults before Laravel replays macros and runs the type's constrain callback.
-        if ($defaults instanceof CacheBuilder && $target instanceof CacheBuilder && ! $defaults->shouldAvoidCache()) {
+        if (!$defaults instanceof CacheBuilder || !$target instanceof CacheBuilder) {
+            return parent::replayMacros($query);
+        }
+
+        if (!$defaults->shouldAvoidCache()) {
             $target
                 ->cacheFor($defaults->getCacheFor())
                 ->cacheTags($defaults->getCacheTags() ?? [])
@@ -27,6 +31,7 @@ class MorphTo extends Relation
                 ->cacheDriver($defaults->getCacheDriver())
                 ->withPlainKey($defaults->shouldUsePlainKey());
         }
+        $target->inheritCacheLockFrom($defaults);
 
         return parent::replayMacros($query);
     }

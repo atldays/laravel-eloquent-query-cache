@@ -5,25 +5,15 @@ declare(strict_types=1);
 namespace Atldays\QueryCache\Test;
 
 use Atldays\QueryCache\Query\Builder as CacheBuilder;
-use Atldays\QueryCache\Test\Factories\BookFactory;
-use Atldays\QueryCache\Test\Factories\PostFactory;
-use Atldays\QueryCache\Test\Factories\UserFactory;
-use Atldays\QueryCache\Test\Models\Book;
-use Atldays\QueryCache\Test\Models\Comment;
-use Atldays\QueryCache\Test\Models\Post;
-use Atldays\QueryCache\Test\Models\SoftDeletedPost;
+use Atldays\QueryCache\Test\Factories\{BookFactory, PostFactory, UserFactory};
+use Atldays\QueryCache\Test\Models\{Book, Comment, Post, SoftDeletedPost};
 use Atldays\QueryCache\Test\Support\RecordingRepository;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\{Builder, Collection, Model};
+use Illuminate\Database\Eloquent\Relations\{MorphTo, Relation};
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User as UncachedUser;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\{Cache, DB, Schema};
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class MorphToConstrainTest extends TestCase
@@ -320,6 +310,6 @@ class MorphToConstrainTest extends TestCase
 
     private function queriesFor(string $table): array
     {
-        return array_values(array_filter(DB::getQueryLog(), fn (array $entry) => str_contains($entry['query'], 'from "'.$table.'"')));
+        return array_values(array_filter(DB::getQueryLog(), fn (array $entry) => str_contains($entry['query'], 'from "' . $table . '"')));
     }
 }
