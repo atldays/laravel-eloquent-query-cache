@@ -8,7 +8,7 @@ use Closure;
 use DateInterval;
 use DateTimeInterface;
 use Illuminate\Cache\{CacheLock, FailoverStore, MemcachedLock, MemoizedStore, NoLock, TaggedCache};
-use Illuminate\Contracts\Cache\{LockProvider, LockTimeoutException, Repository};
+use Illuminate\Contracts\Cache\{Lock, LockProvider, LockTimeoutException, Repository};
 use RuntimeException;
 
 final readonly class CacheStampedeGuard
@@ -59,10 +59,9 @@ final readonly class CacheStampedeGuard
             throw new RuntimeException('Cache stampede protection requires a stable, non-memoized lock store. Selected store: ' . $store::class);
         }
 
-        $wait = $this->options->waitSeconds;
-        $started = hrtime(true);
+        $deadline = hrtime(true) / 1e9 + $this->options->waitSeconds;
 
-        while (true) {
+        do {
             $itemKey = $this->itemKey($key);
             $lock = $store->lock('leqc:fill:' . hash('sha256', $itemKey), $this->options->seconds);
 
@@ -71,11 +70,7 @@ final readonly class CacheStampedeGuard
                 throw new RuntimeException('Cache stampede protection requires ownership-safe lock release. Selected store: ' . $store::class);
             }
 
-            if ($wait > 0) {
-                $lock->block($wait);
-            } elseif (!$lock->get()) {
-                throw new LockTimeoutException;
-            }
+            $this->acquire($lock, $deadline);
 
             try {
                 if ($itemKey === $this->itemKey($key)) {
@@ -92,13 +87,28 @@ final readonly class CacheStampedeGuard
                 $lock->release();
             }
 
-            $remaining = $this->options->waitSeconds - (hrtime(true) - $started) / 1e9;
-            if ($remaining <= 0) {
-                throw new LockTimeoutException;
+        } while (hrtime(true) / 1e9 < $deadline);
+
+        throw new LockTimeoutException;
+    }
+
+    private function acquire(Lock $lock, float $deadline): void
+    {
+        // Laravel 12's block() uses a helper unavailable in standalone Illuminate installs.
+        do {
+            if ($lock->get()) {
+                return;
             }
 
-            $wait = (int)floor($remaining);
-        }
+            $remaining = $deadline - hrtime(true) / 1e9;
+            if ($remaining <= 0) {
+                break;
+            }
+
+            usleep((int)min(250_000, ceil($remaining * 1_000_000)));
+        } while (hrtime(true) / 1e9 < $deadline);
+
+        throw new LockTimeoutException;
     }
 
     private function itemKey(string $key): string

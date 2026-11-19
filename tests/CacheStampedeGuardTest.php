@@ -8,7 +8,7 @@ use Atldays\QueryCache\Cache\{CacheLockOptions, CacheStampedeGuard};
 use Atldays\QueryCache\Test\Support\RecordingLockStore;
 use DateInterval;
 use Illuminate\Cache\{ArrayStore, NullStore, Repository};
-use Illuminate\Contracts\Cache\{LockTimeoutException, Store};
+use Illuminate\Contracts\Cache\{Lock, LockTimeoutException, Store};
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -108,6 +108,20 @@ class CacheStampedeGuardTest extends TestCase
         $this->assertSame('value', $guard->remember('key', 60, fn () => 'value'));
         $cache->forget('key');
         $this->assertSame('again', $guard->rememberForever('key', fn () => 'again'));
+    }
+
+    public function test_waiting_requires_only_atomic_acquire_and_release(): void
+    {
+        $lock = $this->createMock(Lock::class);
+        $lock->expects($this->exactly(2))->method('get')->willReturn(false, true);
+        $lock->expects($this->never())->method('block');
+        $lock->expects($this->once())->method('release')->willReturn(true);
+
+        $store = $this->getMockBuilder(ArrayStore::class)->onlyMethods(['lock'])->getMock();
+        $store->expects($this->once())->method('lock')->willReturn($lock);
+        $guard = new CacheStampedeGuard(new Repository($store), new CacheLockOptions);
+
+        $this->assertSame('filled', $guard->rememberForever('key', fn () => 'filled'));
     }
 
     public function test_missing_lock_provider_and_noop_lock_are_rejected_before_producing(): void
